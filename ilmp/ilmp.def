@@ -1,0 +1,49 @@
+LIBRARY ilmp
+EXPORTS
+	ilmp_alloc
+	ilmp_realloc
+	ilmp_free
+
+	ilmp_add_nc_
+	ilmp_add_n_
+	ilmp_sub_nc_
+	ilmp_sub_n_
+	ilmp_add_n_sub_n_
+
+	ilmp_shr1add_n_
+	ilmp_shr1add_nc_
+	ilmp_shr1sub_n_
+	ilmp_shr1sub_nc_
+
+	ilmp_shr_
+	ilmp_shr_c_
+	ilmp_shl_
+	ilmp_shl_c_
+	ilmp_not_
+	ilmp_shlnot_
+
+	ilmp_addshl1_n_
+	ilmp_subshl1_n_
+
+	ilmp_addmul_1_
+	ilmp_submul_1_
+
+	ilmp_sqr_
+	ilmp_mul_1_
+	ilmp_mul_n_
+	ilmp_mul_
+	ilmp_div_
+	ilmp_sqrt_
+
+	ilmp_from_str_
+	ilmp_to_str_
+
+	ilmp_cmp_
+	ilmp_zero_q_
+	ilmp_add_
+	ilmp_sub_
+	ilmp_add_1_
+	ilmp_sub_1_
+
+	ilmp_limbs_
+	ilmp_digits_

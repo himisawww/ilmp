@@ -1,0 +1,145 @@
+
+	ALIGN 16
+func_2 proc
+ifq test rcx,rcx
+ifq	jz ilmp_div_nq_2_
+ifq	push rdi
+	push rsi
+	push rbp
+	push rbx
+	push r12
+	push r13
+	push r14
+
+	push r9
+	lea rbx,[r8-1]
+ifq	mov rdi,rcx
+	mov rsi,rdx
+	mov r8,[r9]
+	mov r9,[r9+8]
+
+	mov r11,[rsi+rbx*8-8]
+	mov r12,[rsi+rbx*8]
+	xor r13,r13
+	cmp r12,r9
+	ja lab_2
+	setb dl
+	cmp r11,r8
+	setb al
+	or dl,al
+	jz lab_2
+ifq	mov [rdi+rbx*8-8],r13
+	dec rbx
+	mov r13,r12
+	mov r12,r11
+	jz lab_retnsh
+	mov r11,[rsi+rbx*8-8]
+lab_2:
+	bsr rcx,r9
+	not rcx
+	add rcx,64
+	shld r9,r8,cl
+	shl r8,cl
+
+	push rcx
+	push r8
+	push r9
+	mov rcx,r9
+	call ilmp_inv_1_
+	pop r9
+	pop r8
+	mov rbp,rax
+	mov r10,r9
+	imul r10,rax	;r10=bh*(inv-2^64) (mod 2^64) =bh*inv m64
+	xor rcx,rcx
+	mul r8			;rdx:rax=bl*(inv-2^64)
+	add r10,r8		;r10=bh*inv+bl m64
+	adc rcx,-1		;rcx:r10=bh*inv+bl m128
+	add r10,rdx
+	adc rcx,0		;rcx:r10:rax=b*inv m192
+	js lab_2f
+lab_1b:
+	dec rbp
+	sub rax,r8
+	sbb r10,r9
+	sbb rcx,0
+	jns lab_1b
+lab_2f:
+	pop rcx
+					;rbp=(2^192-1) div b - 2^64
+	shld r13,r12,cl
+	shld r12,r11,cl
+	jmp lab_ent
+
+	ALIGN 16
+lab_top:
+	mov r10,[rsi+rbx*8-8]
+	shld r11,r10,cl
+lab_last:			;r13:r12=a2:a1=ah<b=bh:bl=r9:r8
+	mov rax,rbp		;rax=inv-2^64
+	mul r13			;rdx:rax=a2*(inv-2^64)
+	mov r14,r12
+	add r14,rax
+	adc rdx,r13		;rdx:r14=a2*inv+a1=qh:ql
+	mov r13,r14		;r13=ql
+	mov r14,rdx		;r14=qh
+	imul rdx,r9		;rdx=qh*bh m64
+	xchg r13,r12	;r12=ql,r13=a1
+	mov rax,r8		;rax=bl
+	sub r13,rdx		;r13=ah-qh*bh m64
+	xchg r12,r11	;r11=ql,r12=a0
+	mul r14			;rdx:rax=bl*qh
+	sub r12,r8
+	sbb r13,r9		;r13:r12=a-qh*bh*2^64-b m128
+	sub r12,rax
+	sbb r13,rdx		;r13:r12=a-(qh+1)*b m128=z m128
+	xor rax,rax
+	xor rdx,rdx
+	cmp r13,r11		;if(z m128<ql,d=0,-1)
+	cmovnc rax,r8	;
+	cmovnc rdx,r9	;
+ifq	adc r14,0		;	++qh,r13:r12=a-qh*b
+	add r12,rax		;else(d=0,1)
+	adc r13,rdx		;	r13:r12+=b,r13:r12=a-qh*b
+	cmp r13,r9		;if(r13:r12>=b)
+	jae lab_fx		;	r13:r12-=b,++qh
+lab_ok:
+ifq	mov [rdi+rbx*8],r14
+	mov r11,r10
+lab_ent:
+	sub rbx,1
+	ja lab_top
+	jb lab_ret
+	
+	shl r11,cl
+	jmp lab_last
+
+lab_fx:
+	seta dl
+	cmp r12,r8
+	setae al
+	or al,dl
+	jz lab_ok
+ifq	inc r14
+	sub r12,r8
+	sbb r13,r9
+	jmp lab_ok
+
+lab_ret:
+	shrd r12,r13,cl
+	shr r13,cl
+lab_retnsh:
+	pop r9
+	mov [r9],r12
+	mov [r9+8],r13
+	
+	pop r14
+	pop r13
+	pop r12
+	pop rbx
+	pop rbp
+	pop rsi
+ifq	pop rdi
+	ret
+
+func_2 endp

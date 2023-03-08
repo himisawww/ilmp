@@ -1,0 +1,172 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ilmp.def">
+      <Filter>源文件</Filter>
+    </None>
+    <None Include="aors_n_c">
+      <Filter>源文件</Filter>
+    </None>
+    <None Include="aorsshl1_n">
+      <Filter>源文件</Filter>
+    </None>
+    <None Include="shr1aors_n_c">
+      <Filter>源文件</Filter>
+    </None>
+    <None Include="div_1">
+      <Filter>源文件</Filter>
+    </None>
+    <None Include="div_2">
+      <Filter>源文件</Filter>
+    </None>
+    <None Include="aorsmul_1">
+      <Filter>源文件</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="add_n_c.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+    <MASM Include="addshl1_n.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+    <MASM Include="mul_basecase.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+    <MASM Include="not.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+    <MASM Include="shl.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+    <MASM Include="shlnot.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+    <MASM Include="shr.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+    <MASM Include="shr1add_n_c.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+    <MASM Include="shr1sub_n_c.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+    <MASM Include="sqr_basecase.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+    <MASM Include="sub_n_c.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+    <MASM Include="subshl1_n.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+    <MASM Include="div_1.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+    <MASM Include="inv_1.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+    <MASM Include="div_2.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+    <MASM Include="addmul_1.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+    <MASM Include="submul_1.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+    <MASM Include="div_3_2.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+    <MASM Include="tiny.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+    <MASM Include="mul_1.asm">
+      <Filter>源文件</Filter>
+    </MASM>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="add_n_sub_n.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="memory.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="mul.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="mul_fft.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="mul_toom_interp5.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="mul_toom22.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="mul_toom32.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="mul_toom33.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="mul_toom42.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="sqr_toom2.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="sqr_toom3.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="div.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="div_basecase.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="div_divide.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="inv.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="div_mulinv.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="to_str.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="base.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="from_str.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="sqrt.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ilmpn.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="ilmp.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

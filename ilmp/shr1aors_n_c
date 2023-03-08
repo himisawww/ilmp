@@ -1,0 +1,139 @@
+
+.code
+	ALIGN 16
+func_nc proc
+	push rsi
+	push rdi
+	push rbx
+	mov rsi,rdx
+	mov rdi,rcx
+	mov rdx,r8
+	mov rcx,r9
+	mov r8,[rsp+64]
+	xor rax,rax
+	neg r8
+	mov rbx,[rsi]
+	ADCSBB rbx,[rdx]
+	jmp lab_ent
+func_nc endp
+
+	ALIGN 16
+func_n proc
+	push rsi
+	push rdi
+	push rbx
+	mov rsi,rdx
+	mov rdi,rcx
+	mov rdx,r8
+	mov rcx,r9
+	xor rax,rax
+	mov rbx,[rsi]
+	ADDSUB rbx,[rdx]
+lab_ent::
+	rcr rbx,1
+	adc rax,rax
+
+	mov r11,rcx
+	and r11,3
+
+	cmp r11,1
+	je lab_do
+
+lab_n1:
+	cmp r11,2
+	jne lab_n2
+	add rbx ,rbx
+	mov r10,[rsi+8]
+	ADCSBB r10,[rdx+8]
+	lea rsi,[rsi+8]
+	lea rdx,[rdx+8]
+	lea rdi,[rdi+8]
+	rcr r10,1
+	rcr rbx,1
+	mov [rdi-8],rbx
+	jmp lab_cj1
+
+lab_n2:
+	cmp r11,3
+	jne lab_n3
+	add rbx ,rbx
+	mov r9,[rsi+8]
+	mov r10,[rsi+16]
+	ADCSBB r9,[rdx+8]
+	ADCSBB r10,[rdx+16]
+	lea rsi,[rsi+16]
+	lea rdx,[rdx+16]
+	lea rdi,[rdi+16]
+	rcr r10,1
+	rcr r9,1
+	rcr rbx,1
+	mov [rdi-16],rbx
+	jmp lab_cj2
+
+lab_n3:
+	dec rcx
+	add rbx ,rbx
+	mov r8,[rsi+8]
+	mov r9,[rsi+16]
+	ADCSBB r8,[rdx+8]
+	ADCSBB r9,[rdx+16]
+	mov r10,[rsi+24]
+	ADCSBB r10,[rdx+24]
+	lea rsi,[rsi+24]
+	lea rdx,[rdx+24]
+	lea rdi,[rdi+24]
+	rcr r10,1
+	rcr r9,1
+	rcr r8,1
+	rcr rbx,1
+	mov [rdi-24],rbx
+	mov [rdi-16],r8
+lab_cj2:
+	mov [rdi-8],r9
+lab_cj1:
+	mov rbx,r10
+
+lab_do:
+	shr rcx,2
+	je lab_end
+	ALIGN 16
+lab_top:
+	add rbx ,rbx
+
+	mov r8,[rsi+8]
+	mov r9,[rsi+16]
+	ADCSBB r8,[rdx+8]
+	ADCSBB r9,[rdx+16]
+	mov r10,[rsi+24]
+	mov r11,[rsi+32]
+	ADCSBB r10,[rdx+24]
+	ADCSBB r11,[rdx+32]
+
+	lea rsi,[rsi+32]
+	lea rdx,[rdx+32]
+
+	rcr r11,1
+	rcr r10,1
+	rcr r9,1
+	rcr r8,1
+
+	rcr rbx,1
+	mov [rdi],rbx
+	mov [rdi+8],r8
+	mov [rdi+16],r9
+	mov [rdi+24],r10
+	mov rbx,r11
+
+	lea rdi,[rdi+32]
+	dec rcx
+	jne lab_top
+
+lab_end:
+	mov [rdi],rbx
+	pop rbx
+	pop rdi
+	pop rsi
+	ret
+func_n endp
+end
+

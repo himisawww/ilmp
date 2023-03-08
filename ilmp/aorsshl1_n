@@ -1,0 +1,114 @@
+.code
+	ALIGN 16
+func_n proc
+	push rsi
+	push rdi
+	push rbx
+	push r12
+	push r13
+	push r14
+	push r15
+	lea rsi,[r8+r9*8]
+	lea rdx,[rdx+r9*8]
+	lea rdi,[rcx+r9*8]
+	mov rcx,r9
+	xor rax,rax
+	xor rbx,rbx
+	and cl,-4
+	neg rcx
+
+	test r9b,1
+	jnz lab_nx1
+lab_nx0:
+	test r9b,2
+	jz lab_top
+lab_n10:
+	mov r14,[rsi+8*rcx-16]
+	mov r15,[rsi+8*rcx-8]
+	mov r10,[rdx+8*rcx-16]
+	mov r11,[rdx+8*rcx-8]
+	shl r14,1
+	rcl r15,1
+	setc bl
+	ADDSUB r10,r14
+	ADCSBB r11,r15
+	setc al
+	mov [rdi+8*rcx-16],r10
+	mov [rdi+8*rcx-8],r11
+	test rcx,rcx
+	jz lab_ret
+	jmp lab_top
+lab_nx1:
+	test r9b,2
+	jnz lab_n11
+lab_n01:
+	mov r15,[rsi+8*rcx-8]
+	mov r11,[rdx+8*rcx-8]
+	shl r15,1
+	setc bl
+	ADDSUB r11,r15
+	setc al
+	mov [rdi+8*rcx-8],r11
+	test rcx,rcx
+	jz lab_ret
+	jmp lab_top
+lab_n11:
+	mov r13,[rsi+8*rcx-24]
+	mov r14,[rsi+8*rcx-16]
+	mov r15,[rsi+8*rcx-8]
+	mov r9,[rdx+8*rcx-24]
+	mov r10,[rdx+8*rcx-16]
+	mov r11,[rdx+8*rcx-8]
+	shl r13,1
+	rcl r14,1
+	rcl r15,1
+	setc bl
+	ADDSUB r9,r13
+	ADCSBB r10,r14
+	ADCSBB r11,r15
+	setc al
+	mov [rdi+8*rcx-24],r9
+	mov [rdi+8*rcx-16],r10
+	mov [rdi+8*rcx-8],r11
+	test rcx,rcx
+	jz lab_ret
+	ALIGN 16
+lab_top:
+	mov r12,[rsi+8*rcx]
+	mov r13,[rsi+8*rcx+8]
+	neg bl
+	mov r8,[rdx+8*rcx]
+	mov r9,[rdx+8*rcx+8]
+	rcl r12,1
+	rcl r13,1
+	mov r14,[rsi+8*rcx+16]
+	mov r15,[rsi+8*rcx+24]
+	rcl r14,1
+	rcl r15,1
+	setc bl
+	mov r10,[rdx+8*rcx+16]
+	mov r11,[rdx+8*rcx+24]
+	neg al
+	ADCSBB r8,r12
+	ADCSBB r9,r13
+	mov [rdi+8*rcx],r8
+	mov [rdi+8*rcx+8],r9
+	ADCSBB r10,r14
+	ADCSBB r11,r15
+	setc al
+	mov [rdi+8*rcx+16],r10
+	mov [rdi+8*rcx+24],r11
+	add rcx,4
+	jnz lab_top
+lab_ret:
+	add al,bl
+	pop r15
+	pop r14
+	pop r13
+	pop r12
+	pop rbx
+	pop rdi
+	pop rsi
+	ret
+func_n endp
+end

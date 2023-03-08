@@ -1,0 +1,80 @@
+
+	ALIGN 16
+func_1 proc
+ifq test rcx,rcx
+ifq	jz ilmp_div_nq_1_
+ifq	push rdi
+	push rsi
+	push rbp
+	push rbx
+	push r12
+
+	mov rbx,r8
+ifq	mov rdi,rcx
+	mov rsi,rdx
+	mov r8,r9
+
+	xor rax,rax
+	mov r10,[rsi+rbx*8-8]
+	bsr rcx,r8
+	not rcx
+	add rcx,64
+	shl r8,cl
+
+	mov r11,rax
+	mov rbp,rcx
+	mov r12,r8
+	mov rcx,r8
+	call ilmp_inv_1_
+	mov r9,rax
+	mov r8,r12
+	mov rcx,rbp
+	mov rax,r11
+
+	shld rax,r10,cl
+	jmp lab_ent
+
+	ALIGN 16
+lab_top:
+	mov r12,[rsi+rbx*8-8]
+	shld r10,r12,cl		;r10=xl
+lab_last:				;rax=xh<r8, rbp=xh+1
+	mul r9				;rdx:rax=xh*(inv-2^64)
+	add rax,r10			;=xh*(inv-2^64)+xl
+	adc rdx,rbp			;=xh*inv+xl+2^64 (mod 2^128)=q m128
+	mov rbp,rax			;rbp=rax=ql
+ifq	mov r11,rdx			;r11=rdx=qh m64
+	imul rdx,r8			;rdx=qh*r8 m64
+	sub r10,rdx			;r10=x-qh*r8 m64=z m64
+	lea rax,[r8+r10]	;rax=z+r8 m64
+	cmp r10,rbp			;c=z m64<ql
+	cmovc rax,r10		;if(c,d={0,-1})rax=z m64=z
+ifq	adc r11,-1			;if(nc,d={1,0})qh-=1,(rax=z+r8 m64=z')
+	cmp rax,r8			;if(z>=r8)
+	jae lab_fx			;qh+=1,rax=z'
+lab_ok:
+ifq	mov [rdi+rbx*8],r11
+	mov r10,r12
+lab_ent:
+	sub rbx,1
+	lea rbp,[rax+1]
+	ja lab_top
+	jb lab_ret
+
+	shl r10,cl
+	jmp lab_last
+
+lab_fx:
+	sub rax,r8
+ifq	inc r11
+	jmp lab_ok
+
+lab_ret:
+	shr rax,cl
+	pop r12
+	pop rbx
+	pop rbp
+	pop rsi
+ifq	pop rdi
+	ret
+func_1 endp
