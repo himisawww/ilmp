@@ -135,7 +135,7 @@ void ilmp_mul_(mp_ptr dst,mp_srcptr numa,mp_size_t na,mp_srcptr numb,mp_size_t n
 void ilmp_div_(mp_ptr dstq,mp_ptr dstr,mp_srcptr numa,mp_size_t na,mp_srcptr numb,mp_size_t nb);
 //if(dstr)[dsts,nf+na/2+1],[dstr,nf+na/2+1]=sqrtrem([numa,na]*B^(2*nf))
 //else [dsts,nf+na/2+1]=[floor|round](sqrt([numa,na]*B^(2*nf)))
-//need(na>0, eqsep(dsts,numa), eqsep(dstr,numa))
+//need(na>0, numa[na-1]!=0, eqsep(dsts,numa), eqsep(dstr,numa))
 void ilmp_sqrt_(mp_ptr dsts,mp_ptr dstr,mp_srcptr numa,mp_size_t na,mp_size_t nf);
 
 //convert [src,len,base] to [dst,return value,B]
