@@ -25,7 +25,7 @@ namespace ilmp{
     mp_int reserve_limbs_upper(mp_int size){
         return size+size/EXTRA_ALLOC_RATIO+EXTRA_ALLOC_LIMB;
     }
-    // log2(2^x+2^y)
+
     mp_prec_t log2add(mp_prec_t x,mp_prec_t y){
         if(x==y)return x+1;
         mp_prec_t mxy,z;
@@ -38,6 +38,17 @@ namespace ilmp{
             z=x-y;
         }
         return mxy+std::log2(1+std::exp2(z));
+    }
+    int count_left_zeros(mp_limb_t x){
+        int n=MP_LIMB_BITS,c=n/2;
+        do{
+            mp_limb_t y=x>>c;
+            if(y){
+                x=y;
+                n-=c;
+            }
+        } while(c>>=1);
+        return n-(int)x;
     }
     };
     using namespace ilmp::utils;
@@ -79,6 +90,9 @@ do{                     \
 #undef V0_SIGNED
 #undef INIT_NUMBER
     
+    Number::Number( float x){ data=nullptr; from_float(&x,sizeof(x)); }
+    Number::Number(double x){ data=nullptr; from_float(&x,sizeof(x)); }
+
     Number::Number(const char *str,int base){
         data=nullptr;
         from_str(str,base);
@@ -182,7 +196,7 @@ do{                                                  \
         }
         return size()-dotp;
     }
-    mp_prec_t Number::log2(mp_int shift) const{
+    mp_prec_t Number::logbit(mp_int shift) const{
         if(!data)return ssize?INFINITY:NAN;
         if(!ssize)return shift-prec;
         mp_int asize=size(),alog2=MP_LIMB_BITS*(asize-dotp);
@@ -223,7 +237,7 @@ do{                                                  \
 
         if(!is_int()){
             if(prec<=0){
-                mp_prec_t new_prec=prec-log2();
+                mp_prec_t new_prec=prec-logbit();
                 clear();
                 data=value;
                 ssize=0;
@@ -389,7 +403,7 @@ do{                                                  \
         if(!Num1.ssize||!Num2.ssize){
             result.data=result.value;
             result.ssize=0;
-            result.prec=-(Num1.log2()+Num2.log2());
+            result.prec=-(Num1.logbit()+Num2.logbit());
             return result;
         }
 
@@ -459,7 +473,7 @@ do{                                                  \
         if(!Num1.ssize){//0.
             result.data=result.value;
             result.ssize=0;
-            result.prec=Num1.prec+Num2.log2();
+            result.prec=Num1.prec+Num2.logbit();
             return result;
         }
 
@@ -566,7 +580,7 @@ do{                                                  \
     Number pow(const Number &x,mp_int n){
         Number result;
         if(x.data&&x.ssize){//non-zero number
-            mp_prec_t nlog2x=n*x.log2();
+            mp_prec_t nlog2x=n*x.logbit();
             if(nlog2x>MAX_EXP_BITS){
                 result.ssize=x.ssize<0&&(n&1)?-1:1;
                 return result;
@@ -635,6 +649,7 @@ do{                                                  \
         } while(1);
         if(!mhval)return;
 
+        mp_prec_t fracpval=0,fracpval_base=1;
         bool haspval=false,haseval=false;
         mp_int pval,eval=0;
         for(int idx=0;idx<2;++idx){
@@ -650,12 +665,16 @@ do{                                                  \
             }
             bool pesign=pstr[i]=='-';
             if(pstr[i]=='+'||pesign)++i;
-
+            bool hasfracpval=false;
             bool pehval=false;
             mp_int pestart=-1;
             mp_int ip=MP_LIMB_BITS;
             do{
                 char c=pstr[i];
+                if(c=='.'&&idx==0&&!hasfracpval){
+                    c=pstr[++i];
+                    hasfracpval=true;
+                }
                 int val;
                 if(c>='0'&&c<='9')val=c-'0';
                 else if(c>='A'&&c<='Z')val=c-'A'+10;
@@ -666,7 +685,11 @@ do{                                                  \
                     if(pestart==-1)pestart=i;
                 }
                 pehval=true;
-                if(pestart!=-1){
+                if(hasfracpval){
+                    fracpval_base/=base;
+                    fracpval+=fracpval_base*val;
+                }
+                else if(pestart!=-1){
                     covbuf[--ip]=val;
                     if(ip==0)return;
                 }
@@ -674,7 +697,7 @@ do{                                                  \
             } while(1);
             if(!pehval)return;
             mp_int peres=0;
-            if(pestart!=-1){
+            if(ip!=MP_LIMB_BITS){
                 if(ilmp_limbs_(covbuf+ip,MP_LIMB_BITS-ip,base)>2)
                     return;
                 if(ilmp_from_str_(covval,covbuf+ip,MP_LIMB_BITS-ip,base)==2)
@@ -683,7 +706,10 @@ do{                                                  \
                 peres=covval[0];
             }
             if(pesign)peres=-peres;
-            if(idx==0)pval=peres;
+            if(idx==0){
+                pval=peres;
+                if(pesign)fracpval=-fracpval;
+            }
             if(idx==1)eval=peres;
         }
 
@@ -697,7 +723,7 @@ do{                                                  \
             data=value;
             if(isint)prec=INT_PREC;
             else{
-                prec=((haspval?pval:0)+offset-eval)*log2base;
+                prec=(((haspval?pval:0)+offset-eval)+fracpval)*log2base;
                 if(prec>=MAX_EXP_BITS)prec=INT_PREC;
                 if(prec<-MAX_EXP_BITS)data=nullptr;
             }
@@ -724,7 +750,7 @@ do{                                                  \
         mprec+=covval[0];
         mprec=std::log2(mprec)+(digits-mdigits)*log2base;
         apprlog2=mprec+(eval-offset)*log2base;
-        if(haspval)mprec=pval*log2base;
+        if(haspval)mprec=(pval+fracpval)*log2base;
         else if(mprec<MIN_PREC_BITS)mprec=MIN_PREC_BITS;
         if(mprec>MAX_PREC_BITS)mprec=MAX_PREC_BITS;
         bool mpv=mprec<=0;
@@ -804,7 +830,7 @@ do{                                                  \
         if(is_int()){
             le=0;
             if(ssize==0)lm=1;
-            else lm=(mp_int)(log2()/log2base)+2;
+            else lm=(mp_int)(logbit()/log2base)+2;
         }
         else{
             mp_prec_t ev;
@@ -813,7 +839,7 @@ do{                                                  \
                 lm=1;
             }
             else{
-                ev=log2();
+                ev=logbit();
                 lm=(mp_int)(prec/log2base)+3;
             }
             le=(mp_int)(std::log2(1+std::abs(ev))/log2base)+6;
@@ -859,7 +885,7 @@ do{                                                  \
             const Number *plint;
             if(is_int())plint=this;
             else{
-                eval=std::floor((prec-log2())/log2base);
+                eval=std::ceil((prec-logbit())/log2base-mp_prec_t(1)/8);
                 if(eval){
                     Number basepow(base);
                     basepow.prec=prec+std::log2(std::abs((mp_prec_t)eval));
@@ -1083,8 +1109,8 @@ do{                                                  \
         }
 
         mp_int absbase=std::max(Num1.loglimb(),Num2.loglimb())*MP_LIMB_BITS;
-        mp_prec_t abs1=Num1.log2(-absbase);
-        mp_prec_t abs2=Num2.log2(-absbase);
+        mp_prec_t abs1=Num1.logbit(-absbase);
+        mp_prec_t abs2=Num2.logbit(-absbase);
 
         mp_prec_t sigma1=abs1,sigma2=abs2,sigma;
         if(Num1.ssize)sigma1-=Num1.prec;
@@ -1108,7 +1134,7 @@ do{                                                  \
         if(result.ssize==0)
             result.prec=-absbase-sigma;
         else
-            result.prec=result.log2(-absbase)-sigma;
+            result.prec=result.logbit(-absbase)-sigma;
     }
 
     Number operator+(const Number &Num1,const Number &Num2){
@@ -1193,5 +1219,212 @@ do{                                                  \
         result.normalize();
         DEBUG_PRINT("sqrt",std::vector<const Number*>{&x,&result});
         return result;
+    }
+
+    void Number::from_float(const void *fptr,mp_int type_bytes,mp_int exp_bits,mp_int hidden_bit){
+        clear();
+        ssize=0;
+        if(type_bytes<=0||hidden_bit>1||exp_bits>53)return;
+        if(exp_bits<0){
+            const char default_bits[]={
+                 0, 5, 8, 0,11,15, 0, 0,
+                15, 0, 0, 0, 0, 0, 0, 0, 19
+            };
+            if(!(type_bytes&1)&&type_bytes<=32)
+                exp_bits=default_bits[type_bytes/2];
+            if(exp_bits<=0)return;
+        }
+        if(hidden_bit<0)
+            //MSbit=1 is hidden except for extended precision format(10 bytes)
+            hidden_bit=(type_bytes!=10);
+        //mantissa bits
+        mp_int mantissa=type_bytes*8-1-exp_bits+hidden_bit;
+        if(mantissa<1)return;
+
+        //get exp
+        const mp_byte_t *pb=(const mp_byte_t *)fptr;
+        mp_int explimb=0,signbit,expbias=(mp_limb_t(1)<<exp_bits-1)-1;
+        int eloadbits=exp_bits+1;
+        mp_int eloadpos=type_bytes;
+        do{
+            explimb<<=8;
+            explimb|=pb[--eloadpos];
+            eloadbits-=8;
+        } while(eloadbits>=hidden_bit);
+        mp_limb_t mlimb=explimb&(mp_limb_t(1)<<-eloadbits)-1;
+        explimb>>=-eloadbits;
+        signbit=explimb>>exp_bits;
+        explimb-=signbit<<exp_bits;
+        if(explimb==0||explimb==expbias*2+1){
+            expbias=1-expbias-mantissa+1;
+
+            if(explimb&&hidden_bit==0){
+                //clear integer bit
+                mlimb&=~(mp_limb_t(1)<<-eloadbits-1);
+            }
+
+            while(!mlimb&&eloadpos){
+                mlimb<<=8;
+                mlimb|=pb[--eloadpos];
+            }
+
+            if(explimb){
+                //inf, nan
+                if(!mlimb)ssize=signbit?-1:1;
+                return;
+            }
+        }
+        else{
+            expbias=explimb-expbias-mantissa+1;
+            //normal
+            mlimb|=hidden_bit<<-eloadbits;
+
+            //when hidden_bit=0 but the integer part is also 0,
+            //this could happen in unnormalized extended precision format.
+            while(!mlimb&&eloadpos){
+                mlimb<<=8;
+                mlimb|=pb[--eloadpos];
+            }
+        }
+
+        if(!mlimb){//0.
+            from_uint(0);
+            prec=1-expbias;
+            return;
+        }
+        prec=1-expbias;
+        mp_int mbits=MP_LIMB_BITS-count_left_zeros(mlimb);
+        dotp=-(expbias>>MP_LOG2_LIMB_BITS);
+        mp_int rbits=expbias+dotp*MP_LIMB_BITS+eloadpos*8;
+        mp_int msize=(mbits+rbits+(MP_LIMB_BITS-1))/MP_LIMB_BITS;
+        if(msize<=2)data=value;
+        else{
+            alloc_size=reserve_limbs_lower(msize);
+            data=new mp_limb_t[alloc_size];
+        }
+        ssize=signbit?-msize:msize;
+        
+        mp_limb_t hlimb=0;
+        mp_int reqbits=mbits+rbits-(msize-1)*MP_LIMB_BITS;
+        do{
+            if(mbits>=reqbits){
+                mbits-=reqbits;
+                mp_limb_t wlimb=mlimb>>mbits;
+                if(mbits)wlimb|=hlimb<<MP_LIMB_BITS-mbits;
+                data[--msize]=wlimb;
+                if(!msize)break;
+                reqbits=MP_LIMB_BITS;
+            }
+            mp_limb_t loadbyte=0;
+            if(eloadpos)loadbyte=pb[--eloadpos];
+            mbits+=8;
+            hlimb=hlimb<<8|mlimb>>MP_LIMB_BITS-8;
+            mlimb=mlimb<<8|loadbyte;
+        } while(1);
+        prec+=logbit();
+        return;
+    }
+    void Number::to_float(void *fptr,mp_int type_bytes,mp_int exp_bits,mp_int hidden_bit) const{
+        if(type_bytes<=0||hidden_bit>1||exp_bits>53)return;
+        if(exp_bits<0){
+            const char default_bits[]={
+                 0, 5, 8, 0,11,15, 0, 0,
+                15, 0, 0, 0, 0, 0, 0, 0, 19
+            };
+            if(!(type_bytes&1)&&type_bytes<=32)
+                exp_bits=default_bits[type_bytes/2];
+            if(exp_bits<=0)return;
+        }
+        if(hidden_bit<0)
+            //MSbit=1 is hidden except for extended precision format(10 bytes)
+            hidden_bit=(type_bytes!=10);
+        //mantissa bits
+        mp_int mantissa=type_bytes*8-1-exp_bits+hidden_bit;
+        if(mantissa<1)return;
+
+        mp_int expbias=(mp_limb_t(1)<<exp_bits-1)-1;
+        mp_int msize=0,explimb=0,signbit=0;
+        if(!data){
+            signbit=ssize<=0;
+            explimb=expbias*2+1;
+        }
+        else if(ssize){
+            signbit=ssize<0;
+            msize=size();
+            explimb=(msize-dotp)*MP_LIMB_BITS-count_left_zeros(data[msize-1]);
+            explimb=explimb+expbias-1;
+            if(explimb<=0){//subnormal
+                explimb=0;
+                expbias=1-expbias-mantissa+1;
+            }
+            else if(explimb<expbias*2+1){//normal finite
+                expbias=explimb-expbias-mantissa+1;
+            }
+            else{//inf
+                explimb=expbias*2+1;
+                msize=0;
+            }
+        }
+        mp_limb_t mlimb=explimb,hlimb=0;
+        mp_int mbits=exp_bits,is_normal=mlimb!=0;
+        if(!hidden_bit){
+            mlimb=mlimb*2+is_normal;
+            ++mbits;
+        }
+        if(is_nan()){
+            mlimb=mlimb*2+1;
+            ++mbits;
+        }
+        mlimb|=signbit<<mbits;
+        ++mbits;
+        mp_byte_t *pb=(mp_byte_t*)fptr;
+        mp_int wpos=type_bytes;
+        mp_byte_t wbyte=0;
+        do{
+            while(mbits<8){
+                mp_limb_t loadlimb=0;
+                mp_int hbitpos=expbias+wpos*8-mbits-1;
+                mp_int loadpos=dotp+(hbitpos>>MP_LOG2_LIMB_BITS);
+                if(loadpos<msize&&loadpos>=0)loadlimb=data[loadpos];
+                int shl=1+(hbitpos&MP_LIMB_BITS-1);
+                hlimb=mlimb>>MP_LIMB_BITS-shl;
+                if(shl==MP_LIMB_BITS)mlimb=loadlimb;
+                else{
+                    loadlimb&=(mp_limb_t(1)<<shl)-1;
+                    mlimb=mlimb<<shl|loadlimb;
+                }
+                mbits+=shl;
+            }
+            mbits-=8;
+            wbyte=mlimb>>mbits;
+            if(mbits)wbyte|=hlimb<<MP_LIMB_BITS-mbits;
+            if(wpos==0){
+                wbyte=wbyte>=mp_byte_t(0x80);
+                break;
+            }
+            pb[--wpos]=wbyte;
+        } while(1);
+
+        //carry
+        if(wbyte){
+            do{
+                wbyte=++pb[wpos]==0;
+                ++wpos;
+            } while(wbyte);
+
+            if(!hidden_bit){
+                //Note: for floating point format without hidden bit, 
+                //      direct bitwise carrying can not correctly handle overflow
+                //      i.e. mantissa over flow will change explicit MSbit
+                mp_int ipos=mantissa-1;
+                mp_int test_bit=pb[ipos/8]>>(ipos&7)&1;
+                if(is_normal!=test_bit){
+                    ipos+=test_bit;
+                    pb[ipos/8]|=mp_byte_t(1)<<(ipos&7);
+                }
+            }
+        }
+
+        return;
     }
 };

@@ -42,6 +42,10 @@ do{                     \
 #undef V0_UNSIGNED
 #undef V0_SIGNED
 #undef INIT_NUMBER
+    
+    Integer::Integer( float x){ data=value; ssize=0; from_float(&x,sizeof(x)); }
+    Integer::Integer(double x){ data=value; ssize=0; from_float(&x,sizeof(x)); }
+
     Integer::Integer(const char *str,int base){
         data=value;
         ssize=0;
@@ -165,7 +169,7 @@ do{                                                  \
         if(!ssize)return MP_MIN_INT;
         return size();
     }
-    mp_prec_t Integer::log2(mp_int shift) const{
+    mp_prec_t Integer::logbit(mp_int shift) const{
         if(!ssize)return -INT_PREC;
         mp_int asize=size(),alog2=MP_LIMB_BITS*asize;
         mp_prec_t ms=0;
@@ -302,16 +306,15 @@ do{                                                  \
         }
 
         result.ssize=rn*signres;
+        result.normalize();
     }
     Integer operator*(const Integer &Num1,const Integer &Num2){
         Integer result;
         mul(result,Num1,Num2);
-        result.normalize();
         return result;
     }
     Integer &Integer::operator*=(const Integer &Num){
         mul(*this,*this,Num);
-        normalize();
         return *this;
     }
     
@@ -356,16 +359,15 @@ do{                                                  \
         }
 
         result.ssize=rn*signres;
+        result.normalize();
     }
     Integer operator/(const Integer &Num1,const Integer &Num2){
         Integer result;
         div(result,Num1,Num2);
-        result.normalize();
         return result;
     }
     Integer &Integer::operator/=(const Integer &Num){
         div(*this,*this,Num);
-        normalize();
         return *this;
     }
 
@@ -392,6 +394,12 @@ do{                                                  \
         ref.prec=INT_PREC;
         ref.to_str(pstr,base);
         ref.data=nullptr;
+    }
+
+    void Integer::from_float(const void *fptr,mp_int type_bytes,mp_int exp_bits,mp_int hidden_bit){
+        Number x;
+        x.from_float(fptr,type_bytes,exp_bits,hidden_bit);
+        Integer(std::move(x)).swap(*this);
     }
 
     void _addsub(Integer &result,const Integer &Num1,const Integer &Num2,bool is_add){
@@ -457,33 +465,31 @@ do{                                                  \
         }
         result.ssize=rn*signres;
     }
-    void add(Integer &x,const Integer &Num1,const Integer &Num2){
+    inline void add(Integer &x,const Integer &Num1,const Integer &Num2){
         _addsub(x,Num1,Num2,true);
+        x.normalize();
     }
-    void sub(Integer &x,const Integer &Num1,const Integer &Num2){
+    inline void sub(Integer &x,const Integer &Num1,const Integer &Num2){
         _addsub(x,Num1,Num2,false);
+        x.normalize();
     }
 
     Integer operator+(const Integer &Num1,const Integer &Num2){
         Integer result;
-        _addsub(result,Num1,Num2,true);
-        result.normalize();
+        add(result,Num1,Num2);
         return result;
     }
     Integer operator-(const Integer &Num1,const Integer &Num2){
         Integer result;
-        _addsub(result,Num1,Num2,false);
-        result.normalize();
+        sub(result,Num1,Num2);
         return result;
     }
     Integer &Integer::operator+=(const Integer &Num){
-        _addsub(*this,*this,Num,true);
-        normalize();
+        add(*this,*this,Num);
         return *this;
     }
     Integer &Integer::operator-=(const Integer &Num){
-        _addsub(*this,*this,Num,false);
-        normalize();
+        sub(*this,*this,Num);
         return *this;
     }
 };

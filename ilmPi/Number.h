@@ -22,6 +22,7 @@ namespace ilmp{
     const mp_uint MP_MAX_UINT=-1;
     const mp_int MP_MAX_INT=MP_MAX_UINT>>1;
     const mp_int MP_MIN_INT=-1-MP_MAX_INT;
+    const mp_int MP_LOG2_LIMB_BITS=6;
     const mp_int MP_LIMB_BITS=64;
     const mp_limb_t INT_PINF=0x7FF0000000000000;
     const mp_prec_t INT_PREC=*(mp_prec_t*)&INT_PINF;
@@ -54,7 +55,10 @@ namespace ilmp{
         mp_int precision_limbs(mp_int iprec);
         mp_int reserve_limbs_lower(mp_int size);
         mp_int reserve_limbs_upper(mp_int size);
+        // log2(2^x+2^y)
         mp_prec_t log2add(mp_prec_t x,mp_prec_t y);
+        // bit count leading zeros
+        int count_left_zeros(mp_limb_t x);
     };
     /*
 
@@ -94,14 +98,13 @@ namespace ilmp{
         Integer(unsigned long);
         Integer(signed long long);
         Integer(unsigned long long);
-        Integer(float);
-        Integer(double);
-        Integer(long double);
+        explicit Integer(float);
+        explicit Integer(double);
 
         Integer(Integer &&);
         Integer(const Integer&);
-        Integer(Number &&x);
-        Integer(const Number&);
+        explicit Integer(Number &&x);
+        explicit Integer(const Number&);
         Integer(const char*,int base=10);
         ~Integer();
 
@@ -112,8 +115,13 @@ namespace ilmp{
 
         void from_int(mp_int);
         void from_uint(mp_uint);
-        //from_float(&fvalue,sizeof(fvalue));
-        void from_float(const void*,mp_int tsize);
+        //from_float(pointer to float, size of float format);
+        //require little endian
+        //Note: type_bytes should be actuall format size,
+        //      some platform have 80-bits long double padded to 12/16 bytes,
+        //      in this case, type_bytes should be 10 but not sizeof(long double)
+        void from_float(    const void *fptr,    mp_int type_bytes,
+                            mp_int exp_bits=-1,  mp_int hidden_bit=-1);
         //[+-][N]
         void from_str(const char*,int base=10);
 
@@ -121,8 +129,13 @@ namespace ilmp{
         mp_int to_int() const;
         //result may mod by 2^64
         mp_uint to_uint() const;
-        //to_float(&fvalue,sizeof(fvalue));
-        void to_float(void*,mp_int tsize) const;
+        //to_float(pointer to float, size of float format);
+        //result will be little endian
+        //Note: type_bytes should be actuall format size,
+        //      some platform have 80-bits long double padded to 12/16 bytes,
+        //      in this case, type_bytes should be 10 but not sizeof(long double)
+        void to_float(      void *fptr,          mp_int type_bytes,
+                            mp_int exp_bits=-1,  mp_int hidden_bit=-1) const;
         //buffer length needed to store this as a string in a given base
         mp_int strlen(int base=10) const;
         //convert this into a string in a given base
@@ -138,7 +151,7 @@ namespace ilmp{
         //1+floor(logB(this))
         mp_int loglimb() const;
         //log2(this*2^shift)
-        mp_prec_t log2(mp_int shift=0) const;
+        mp_prec_t logbit(mp_int shift=0) const;
 
         bool is_nan() const;
 
@@ -195,7 +208,7 @@ namespace ilmp{
              = {data,sign*size,dotp,prec}
    //  sign=[-1|1], data[size-1]!=0
    //  prec == INT_PREC for int value
-   //  dotp == 0 for int value
+   //  dotp <= 0 for int value
    //* -MAX_EXP_LIMBS < size-dotp <= MAX_EXP_LIMBS
    //* 0 < prec <= MAX_PREC_BITS for float value
    //* size < precision_limbs(prec) for float value
@@ -232,7 +245,6 @@ Note:
         Number(unsigned long long);
         Number(float);
         Number(double);
-        Number(long double);
         Number(Integer &&);
         Number(const Integer &);
         Number(Number &&);
@@ -247,8 +259,13 @@ Note:
 
         void from_int(mp_int);
         void from_uint(mp_uint);
-        //from_float(&fvalue,sizeof(fvalue));
-        void from_float(const void*,mp_int tsize);
+        //from_float(pointer to float, size of float format);
+        //require little endian
+        //Note: type_bytes should be actuall format size,
+        //      some platform have 80-bits long double padded to 12/16 bytes,
+        //      in this case, type_bytes should be 10 but not sizeof(long double)
+        void from_float(    const void *fptr,    mp_int type_bytes,
+                            mp_int exp_bits=-1,  mp_int hidden_bit=-1);
         //[+-][N.N][`[+-]prec][*^[+-]exponent]
         void from_str(const char*,int base=10);
 
@@ -256,8 +273,13 @@ Note:
         mp_int to_int() const;
         //result may be rounded or mod by 2^64
         mp_uint to_uint() const;
-        //to_float(&fvalue,sizeof(fvalue));
-        void to_float(void*,mp_int tsize) const;
+        //to_float(pointer to float, size of float format);
+        //result will be little endian
+        //Note: type_bytes should be actuall format size,
+        //      some platform have 80-bits long double padded to 12/16 bytes,
+        //      in this case, type_bytes should be 10 but not sizeof(long double)
+        void to_float(      void *fptr,          mp_int type_bytes,
+                            mp_int exp_bits=-1,  mp_int hidden_bit=-1) const;
         //buffer length needed to store this as a string in a given base
         mp_int strlen(int base=10) const;
         //convert this into a string in a given base
@@ -273,7 +295,7 @@ Note:
         //1+floor(logB(this))
         mp_int loglimb() const;
         //log2(this*2^shift)
-        mp_prec_t log2(mp_int shift=0) const;
+        mp_prec_t logbit(mp_int shift=0) const;
         //precision in bits, if this==0, returns accuracy
         mp_prec_t precision() const;
         //set to INT_PREC or +inf will fix this to integer
