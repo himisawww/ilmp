@@ -98,6 +98,29 @@ do{                       \
         data=nullptr;
     }
 
+    Number::operator bool              () const{return !data||ssize;}
+    Number::operator char              () const{return to_int();}
+    Number::operator signed char       () const{return to_int();}
+    Number::operator unsigned char     () const{return to_uint();}
+    Number::operator signed short      () const{return to_int();}
+    Number::operator unsigned short    () const{return to_uint();}
+    Number::operator signed int        () const{return to_int();}
+    Number::operator unsigned int      () const{return to_uint();}
+    Number::operator signed long       () const{return to_int();}
+    Number::operator unsigned long     () const{return to_uint();}
+    Number::operator signed long long  () const{return to_int();}
+    Number::operator unsigned long long() const{return to_uint();}
+    Number::operator float             () const{
+        float x;
+        to_float(&x,sizeof(x));
+        return x; 
+    }
+    Number::operator double            () const{
+        double x;
+        to_float(&x,sizeof(x));
+        return x;
+    }
+
     void Number::neg(){ ssize=-ssize; }
     int Number::sign() const{ return ssize?(ssize>0?1:-1):0; }
     mp_int Number::size() const{ return ssize<0?-ssize:ssize; }
@@ -181,6 +204,25 @@ do{                                                  \
             data=new mp_limb_t[alloc_size];
             memcpy(data,x.data,asize*sizeof(mp_limb_t));
         }
+    }
+
+    mp_int Number::to_int() const{
+        if(!data||!ssize||dotp<0)return 0;
+        mp_int asize=size();
+        mp_limb_t hlimb=0,llimb=0;
+        if(dotp<asize)hlimb=data[dotp];
+        if(dotp>0&&dotp<=asize)llimb=data[dotp-1];
+        mp_int ilimb=hlimb+(llimb>>MP_LIMB_BITS-1);
+        return ssize>0?ilimb:-ilimb;
+    }
+    mp_uint Number::to_uint() const{
+        if(!data||!ssize||dotp<0)return 0;
+        mp_int asize=size();
+        mp_limb_t hlimb=0,llimb=0;
+        if(dotp<asize)hlimb=data[dotp];
+        if(dotp>0&&dotp<=asize)llimb=data[dotp-1];
+        mp_uint ilimb=hlimb+(llimb>>MP_LIMB_BITS-1);
+        return ssize>0?ilimb:-ilimb;
     }
 
     mp_int Number::loglimb() const{

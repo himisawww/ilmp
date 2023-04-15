@@ -51,6 +51,29 @@ do{                       \
         data=value;
         ssize=0;
     }
+    
+    Integer::operator bool              () const{ return ssize;    }
+    Integer::operator char              () const{ return to_int(); }
+    Integer::operator signed char       () const{ return to_int(); }
+    Integer::operator unsigned char     () const{ return to_uint(); }
+    Integer::operator signed short      () const{ return to_int(); }
+    Integer::operator unsigned short    () const{ return to_uint(); }
+    Integer::operator signed int        () const{ return to_int(); }
+    Integer::operator unsigned int      () const{ return to_uint(); }
+    Integer::operator signed long       () const{ return to_int(); }
+    Integer::operator unsigned long     () const{ return to_uint(); }
+    Integer::operator signed long long  () const{ return to_int(); }
+    Integer::operator unsigned long long() const{ return to_uint(); }
+    Integer::operator float             () const{
+        float x;
+        to_float(&x,sizeof(x));
+        return x;
+    }
+    Integer::operator double            () const{
+        double x;
+        to_float(&x,sizeof(x));
+        return x;
+    }
 
     void Integer::neg(){ ssize=-ssize; }
     int Integer::sign() const{ return ssize?(ssize>0?1:-1):0; }
@@ -157,6 +180,17 @@ do{                                                  \
             else rn=sizex-dotpx;
         }
         ssize=rn*signx;
+    }
+    
+    mp_int Integer::to_int() const{
+        if(!ssize)return 0;
+        mp_int ilimb=data[0];
+        return ssize>0?ilimb:-ilimb;
+    }
+    mp_uint Integer::to_uint() const{
+        if(!ssize)return 0;
+        mp_uint ilimb=data[0];
+        return ssize>0?ilimb:-ilimb;
     }
 
     mp_int Integer::loglimb() const{
@@ -376,7 +410,7 @@ do{                                                  \
         ref.ssize=ssize;
         ref.dotp=0;
         ref.prec=INT_PREC;
-        mp_int result=ref.strlen();
+        mp_int result=ref.strlen(base);
         ref.data=nullptr;
         return result;
     }
@@ -394,6 +428,15 @@ do{                                                  \
         Number x;
         x.from_float(fptr,type_bytes,exp_bits,hidden_bit);
         Integer(std::move(x)).swap(*this);
+    }
+    void Integer::to_float(void *fptr,mp_int type_bytes,mp_int exp_bits,mp_int hidden_bit) const{
+        Number ref;
+        ref.data=data;
+        ref.ssize=ssize;
+        ref.dotp=0;
+        ref.prec=INT_PREC;
+        ref.to_float(fptr,type_bytes,exp_bits,hidden_bit);
+        ref.data=nullptr;
     }
 
     void _addsub(Integer &result,const Integer &Num1,const Integer &Num2,bool is_add){

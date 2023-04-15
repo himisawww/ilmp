@@ -15,19 +15,22 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Number.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="calctime.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Integer.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="pi.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="pimain.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Number.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Integer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="examples.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

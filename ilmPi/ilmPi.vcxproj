@@ -147,9 +147,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="calctime.cpp" />
+    <ClCompile Include="examples.cpp" />
     <ClCompile Include="Integer.cpp" />
-    <ClCompile Include="pimain.cpp" />
     <ClCompile Include="Number.cpp" />
+    <ClCompile Include="pimain.cpp" />
     <ClCompile Include="pi.cpp" />
   </ItemGroup>
   <ItemGroup>

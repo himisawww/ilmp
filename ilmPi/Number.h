@@ -108,6 +108,21 @@ namespace ilmp{
         Integer(const char*,int base=10);
         ~Integer();
 
+        explicit operator bool              () const;
+        explicit operator char              () const;
+        explicit operator signed char       () const;
+        explicit operator unsigned char     () const;
+        explicit operator signed short      () const;
+        explicit operator unsigned short    () const;
+        explicit operator signed int        () const;
+        explicit operator unsigned int      () const;
+        explicit operator signed long       () const;
+        explicit operator unsigned long     () const;
+        explicit operator signed long long  () const;
+        explicit operator unsigned long long() const;
+        explicit operator float             () const;
+        explicit operator double            () const;
+
         //this=0, release allocated memory
         void clear();
         //# of limbs pointed by data
@@ -153,8 +168,6 @@ namespace ilmp{
         //log2(this*2^shift)
         mp_prec_t logbit(mp_int shift=0) const;
 
-        bool is_nan() const;
-
         void swap(Integer&);
 
         //if alloc too long compared to size
@@ -189,8 +202,6 @@ namespace ilmp{
     void mul(Integer&,const Integer&,const Integer&);
     void div(Integer&,const Integer&,const Integer&);
     
-    Integer sqrt(const Integer&);
-    Integer pow(const Integer&,mp_int);
 /*
    Special values:
          NaN = {null, 0,...}
@@ -251,6 +262,21 @@ Note:
         Number(const Number&);
         Number(const char*,int base=10);
         ~Number();
+        
+        explicit operator bool              () const;
+        explicit operator char              () const;
+        explicit operator signed char       () const;
+        explicit operator unsigned char     () const;
+        explicit operator signed short      () const;
+        explicit operator unsigned short    () const;
+        explicit operator signed int        () const;
+        explicit operator unsigned int      () const;
+        explicit operator signed long       () const;
+        explicit operator unsigned long     () const;
+        explicit operator signed long long  () const;
+        explicit operator unsigned long long() const;
+        explicit operator float             () const;
+        explicit operator double            () const;
 
         //this=nan or inf, release allocated memory
         void clear();
@@ -298,14 +324,17 @@ Note:
         mp_prec_t logbit(mp_int shift=0) const;
         //precision in bits, if this==0, returns accuracy
         mp_prec_t precision() const;
+        //precision are in bits
         //set to INT_PREC or +inf will fix this to integer
         void set_precision(mp_prec_t);
         //if is inf, return sign of inf
         //else return 0
         int is_inf() const;
         bool is_nan() const;
+        //check if is integer
+        //return value undefined for inf/nan
         bool is_int() const;
-        //true if value is not inf or nan
+        //equivalent to !is_inf() && !is_nan()
         bool is_num() const;
         void swap(Number&);
         //if overprec or overflow
