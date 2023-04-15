@@ -8,39 +8,33 @@
 namespace ilmp{
     using namespace ilmp::utils;
 
-#define V0_BOOL ssize
-#define V0_UNSIGNED x
-#define V0_SIGNED (x>=0?x:-x)
-#define INIT_NUMBER(v0) \
-do{                     \
-    data=value;         \
-    ssize=x?1:0;        \
-    value[0]=v0;        \
+#define INIT_NUMBER       \
+do{                       \
+    data=value;           \
+    ssize=x?(x>0?1:-1):0; \
+    value[0]=x*ssize;     \
 }while(0)
-    Integer::Integer()                    { data=value; ssize=0;      }
-    Integer::Integer(bool x)              { INIT_NUMBER(V0_BOOL    ); }
-    Integer::Integer(char x)              { INIT_NUMBER(V0_SIGNED  ); }
-    Integer::Integer(signed char x)       { INIT_NUMBER(V0_SIGNED  ); }
-    Integer::Integer(unsigned char x)     { INIT_NUMBER(V0_UNSIGNED); }
-    Integer::Integer(signed short x)      { INIT_NUMBER(V0_SIGNED  ); }
-    Integer::Integer(unsigned short x)    { INIT_NUMBER(V0_UNSIGNED); }
-    Integer::Integer(signed int x)        { INIT_NUMBER(V0_SIGNED  ); }
-    Integer::Integer(unsigned int x)      { INIT_NUMBER(V0_UNSIGNED); }
-    Integer::Integer(signed long x)       { INIT_NUMBER(V0_SIGNED  ); }
-    Integer::Integer(unsigned long x)     { INIT_NUMBER(V0_UNSIGNED); }
-    Integer::Integer(signed long long x)  { INIT_NUMBER(V0_SIGNED  ); }
-    Integer::Integer(unsigned long long x){ INIT_NUMBER(V0_UNSIGNED); }
+    Integer::Integer()                    { data=value; ssize=0; }
+    Integer::Integer(bool x)              { INIT_NUMBER; }
+    Integer::Integer(char x)              { INIT_NUMBER; }
+    Integer::Integer(signed char x)       { INIT_NUMBER; }
+    Integer::Integer(unsigned char x)     { INIT_NUMBER; }
+    Integer::Integer(signed short x)      { INIT_NUMBER; }
+    Integer::Integer(unsigned short x)    { INIT_NUMBER; }
+    Integer::Integer(signed int x)        { INIT_NUMBER; }
+    Integer::Integer(unsigned int x)      { INIT_NUMBER; }
+    Integer::Integer(signed long x)       { INIT_NUMBER; }
+    Integer::Integer(unsigned long x)     { INIT_NUMBER; }
+    Integer::Integer(signed long long x)  { INIT_NUMBER; }
+    Integer::Integer(unsigned long long x){ INIT_NUMBER; }
     void Integer::from_int(mp_int x){
         clear();
-        INIT_NUMBER(V0_SIGNED);
+        INIT_NUMBER;
     }
     void Integer::from_uint(mp_uint x){
         clear();
-        INIT_NUMBER(V0_UNSIGNED);
+        INIT_NUMBER;
     }
-#undef V0_BOOL
-#undef V0_UNSIGNED
-#undef V0_SIGNED
 #undef INIT_NUMBER
     
     Integer::Integer( float x){ data=value; ssize=0; from_float(&x,sizeof(x)); }

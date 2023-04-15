@@ -52,42 +52,37 @@ namespace ilmp{
     }
     };
     using namespace ilmp::utils;
-#define V0_BOOL ssize
-#define V0_UNSIGNED x
-#define V0_SIGNED (x>=0?x:-x)
-#define INIT_NUMBER(v0) \
-do{                     \
-    data=value;         \
-    ssize=x?1:0;        \
-    dotp=0;             \
-    prec=INT_PREC;      \
-    value[0]=v0;        \
+
+#define INIT_NUMBER       \
+do{                       \
+    data=value;           \
+    ssize=x?(x>0?1:-1):0; \
+    dotp=0;               \
+    prec=INT_PREC;        \
+    value[0]=x*ssize;     \
 }while(0)
 
-    Number::Number()                    { data=nullptr;             }
-    Number::Number(bool x)              { INIT_NUMBER(V0_BOOL    ); }
-    Number::Number(char x)              { INIT_NUMBER(V0_SIGNED  ); }
-    Number::Number(signed char x)       { INIT_NUMBER(V0_SIGNED  ); }
-    Number::Number(unsigned char x)     { INIT_NUMBER(V0_UNSIGNED); }
-    Number::Number(signed short x)      { INIT_NUMBER(V0_SIGNED  ); }
-    Number::Number(unsigned short x)    { INIT_NUMBER(V0_UNSIGNED); }
-    Number::Number(signed int x)        { INIT_NUMBER(V0_SIGNED  ); }
-    Number::Number(unsigned int x)      { INIT_NUMBER(V0_UNSIGNED); }
-    Number::Number(signed long x)       { INIT_NUMBER(V0_SIGNED  ); }
-    Number::Number(unsigned long x)     { INIT_NUMBER(V0_UNSIGNED); }
-    Number::Number(signed long long x)  { INIT_NUMBER(V0_SIGNED  ); }
-    Number::Number(unsigned long long x){ INIT_NUMBER(V0_UNSIGNED); }
+    Number::Number()                    { data=nullptr; }
+    Number::Number(bool x)              { INIT_NUMBER;  }
+    Number::Number(char x)              { INIT_NUMBER;  }
+    Number::Number(signed char x)       { INIT_NUMBER;  }
+    Number::Number(unsigned char x)     { INIT_NUMBER;  }
+    Number::Number(signed short x)      { INIT_NUMBER;  }
+    Number::Number(unsigned short x)    { INIT_NUMBER;  }
+    Number::Number(signed int x)        { INIT_NUMBER;  }
+    Number::Number(unsigned int x)      { INIT_NUMBER;  }
+    Number::Number(signed long x)       { INIT_NUMBER;  }
+    Number::Number(unsigned long x)     { INIT_NUMBER;  }
+    Number::Number(signed long long x)  { INIT_NUMBER;  }
+    Number::Number(unsigned long long x){ INIT_NUMBER;  }
     void Number::from_int(mp_int x){
         clear();
-        INIT_NUMBER(V0_SIGNED);
+        INIT_NUMBER;
     }
     void Number::from_uint(mp_uint x){
         clear();
-        INIT_NUMBER(V0_UNSIGNED);
+        INIT_NUMBER;
     }
-#undef V0_BOOL
-#undef V0_UNSIGNED
-#undef V0_SIGNED
 #undef INIT_NUMBER
     
     Number::Number( float x){ data=nullptr; from_float(&x,sizeof(x)); }
