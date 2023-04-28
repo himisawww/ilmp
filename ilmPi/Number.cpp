@@ -1215,6 +1215,7 @@ do{                                                  \
         }
         if(!x.ssize){
             result.data=result.value;
+            result.ssize=0;
             result.prec=x.prec*0.5;
             return result;
         }
