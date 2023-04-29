@@ -56,7 +56,7 @@ int main(int argc,char **argv){
 	printf("\nWriting results to file: %s\n",fname);
 
 	FILE *fout=fopen(fname,"w");
-	fprintf(fout,"%s",buf);
+	fwrite(buf,1,strlen(buf),fout);//fprintf(fout,"%s",buf);
 	fclose(fout);
 	delete[] buf;
 
