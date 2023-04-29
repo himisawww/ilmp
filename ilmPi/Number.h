@@ -369,4 +369,6 @@ Note:
     Number pow(const Number&,mp_int);
 
     Number Pi(mp_uint digits,int base=10);
+    Number E(mp_uint digits,int base=10);
+    Number Prime_BuenosAires(mp_uint digits,int base=10);
 }
