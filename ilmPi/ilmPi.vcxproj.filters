@@ -18,7 +18,7 @@
     <ClCompile Include="calctime.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="pi.cpp">
+    <ClCompile Include="constants.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="pimain.cpp">

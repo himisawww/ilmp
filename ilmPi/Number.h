@@ -154,7 +154,8 @@ namespace ilmp{
         //buffer length needed to store this as a string in a given base
         mp_int strlen(int base=10) const;
         //convert this into a string in a given base
-        void to_str(char*,int base=10) const;
+        //return strlen
+        mp_int to_str(char*,int base=10) const;
 
         //this=-this
         void neg();
@@ -309,7 +310,8 @@ Note:
         //buffer length needed to store this as a string in a given base
         mp_int strlen(int base=10) const;
         //convert this into a string in a given base
-        void to_str(char*,int base=10) const;
+        //return strlen
+        mp_int to_str(char*,int base=10) const;
 
         //this=-this
         void neg();
@@ -368,9 +370,13 @@ Note:
     Number sqrt(const Number&);
     Number pow(const Number&,mp_int);
 
-    Number Pi(mp_uint digits,int base=10);
-    Number E(mp_uint digits,int base=10);
-    Number Prime_BuenosAires(mp_uint digits,int base=10);
+    //convert precision from digits in a given base to mp_prec_t in bits
+    mp_prec_t convert_precision(mp_uint digits,int base=10);
+    //force precision into [MIN_PREC_BITS, MAX_PREC_BITS]
+    mp_prec_t check_precision(mp_prec_t precision);
+    Number Pi(mp_prec_t precision);
+    Number E(mp_prec_t precision);
+    Number Prime_BuenosAires(mp_prec_t precision);
     //return coef * arctan[h if hyperbolic] (1/x) for x>=2
     //precision in bits.
     Number acoti(mp_int _coef,mp_uint _x,mp_prec_t precision,int _hyperbolic=0);

@@ -147,11 +147,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="calctime.cpp" />
-    <ClCompile Include="examples.cpp" />
+    <ClCompile Include="examples.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Integer.cpp" />
     <ClCompile Include="Number.cpp" />
     <ClCompile Include="pimain.cpp" />
-    <ClCompile Include="pi.cpp" />
+    <ClCompile Include="constants.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CalcTime.h" />

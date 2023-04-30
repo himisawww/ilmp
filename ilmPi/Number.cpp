@@ -883,7 +883,8 @@ do{                                                  \
         }
         return lm+ls+le+1;
     }
-    void Number::to_str(char *pstr,int base) const{
+    mp_int Number::to_str(char *pstr,int base) const{
+        char *const ssrc=pstr;
         char c10='a';
 
         if(base<0){
@@ -892,7 +893,7 @@ do{                                                  \
         }
         if(base<2||base>36){
             *pstr=0;
-            return;
+            return pstr-ssrc;
         }
 
         const mp_prec_t log2base=std::log2((mp_prec_t)base);
@@ -902,7 +903,7 @@ do{                                                  \
                 ++pstr;
             }
             strcpy(pstr,ssize==0?"#nan":"#inf");
-            return;
+            return pstr+4-ssrc;
         }
 
         mp_int eval=0;
@@ -911,7 +912,7 @@ do{                                                  \
             pstr[0]='0';
             if(is_int()){
                 pstr[1]=0;
-                return;
+                return pstr+1-ssrc;
             }
             pstr[1]='.';
             pstr+=2;
@@ -1025,6 +1026,7 @@ do{                                                  \
             } while(len);
         }
         *pstr=0;
+        return pstr-ssrc;
     }
 
     //|num1|+-|num2|, need(num1!=0, num2!=0, isadd|||num1|>=|num2|)

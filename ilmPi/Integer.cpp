@@ -414,14 +414,15 @@ do{                                                  \
         ref.data=nullptr;
         return result;
     }
-    void Integer::to_str(char *pstr,int base) const{
+    mp_int Integer::to_str(char *pstr,int base) const{
         Number ref;
         ref.data=data;
         ref.ssize=ssize;
         ref.dotp=0;
         ref.prec=INT_PREC;
-        ref.to_str(pstr,base);
+        mp_int ret=ref.to_str(pstr,base);
         ref.data=nullptr;
+        return ret;
     }
 
     void Integer::from_float(const void *fptr,mp_int type_bytes,mp_int exp_bits,mp_int hidden_bit){
