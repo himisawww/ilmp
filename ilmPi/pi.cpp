@@ -9,6 +9,8 @@
 #define C ((mp_uint)640320)
 #define MAX_DEPTH 64
 
+#define MIN_SIEVE_ACOTI (1|(mp_uint)100)
+
 namespace ilmp{
 	typedef struct{
 		//smallest factor for composite
@@ -34,9 +36,15 @@ namespace ilmp{
 		~factor_t();
 	};
 
-	class pi_calc{
+	class bs_factor_summator{
 	public:
-		Number pi;
+		//union{
+			//for acoti
+			//struct{
+				Integer coef,x2;
+				mp_uint x_factor,trigflag;
+			//};
+		//};
 		sieve_t *sieve;
 		Integer *ps,*qs,*ts,*gcds;
 		factor_t *fps,*fqs,*fmul,*fbp;
@@ -50,8 +58,13 @@ namespace ilmp{
 		void factor_swap(factor_t &,factor_t &);
 		void build_sieve(mp_uint n);
 		void bs_mulgcd(mp_uint a,mp_uint b,int top);
+		
 		void bs_chudnovsky(mp_uint a,mp_uint b,int needp,int level,int top);
-		pi_calc(mp_uint digits,int base=10);
+		Number Pi(mp_prec_t precision);
+
+		void bs_acoti(mp_uint a,mp_uint b,int needp,int level,int top);
+		//return coef*arctan[h if hyperbolic](1/x) for x>=2
+		Number acoti(mp_int _coef,mp_uint _x,mp_prec_t precision,int _hyperbolic);
 	};
 
 	factor_t::factor_t(){
@@ -64,7 +77,7 @@ namespace ilmp{
 		if(factor)delete[] factor;
 	}
 
-	void pi_calc::factor_resize(factor_t &fp,mp_uint new_size){
+	void bs_factor_summator::factor_resize(factor_t &fp,mp_uint new_size){
 		if(fp.capacity<new_size){
 			if(fp.factor)delete[] fp.factor;
 			fp.capacity=new_size;
@@ -73,7 +86,7 @@ namespace ilmp{
 			fp.power=fp.factor+new_size;
 		}
 	}
-	void pi_calc::factor_compact(factor_t &fp){
+	void bs_factor_summator::factor_compact(factor_t &fp){
 		mp_uint j=0;
 		for(mp_uint i=0;i<fp.size;++i){
 			if(fp.power[i]){
@@ -86,7 +99,7 @@ namespace ilmp{
 		}
 		fp.size=j;
 	}
-	void pi_calc::factor_set_bp(factor_t &fp,mp_uint base,int pow){
+	void bs_factor_summator::factor_set_bp(factor_t &fp,mp_uint base,int pow){
 		base/=2;
 		mp_uint fsize=0;
 		while(base){
@@ -99,11 +112,11 @@ namespace ilmp{
 		}
 		fp.size=fsize;
 	}
-	void pi_calc::factor_mul_bp(factor_t &fp,mp_uint base,int pow){
+	void bs_factor_summator::factor_mul_bp(factor_t &fp,mp_uint base,int pow){
 		factor_set_bp(fbp[0],base,pow);
 		factor_mul(fp,fbp[0]);
 	}
-	void pi_calc::factor_mul(factor_t &fp1,const factor_t &fp2){
+	void bs_factor_summator::factor_mul(factor_t &fp1,const factor_t &fp2){
 		factor_resize(fmul[0],fp1.size+fp2.size);
 		mp_uint i=0,j=0,k=0;
 		while(i<fp1.size&&j<fp2.size){
@@ -137,7 +150,7 @@ namespace ilmp{
 		fmul->size=k;
 		factor_swap(fmul[0],fp1);
 	}
-	void pi_calc::factor_cancel(Integer &p,factor_t &fp,Integer &q,factor_t &fq){
+	void bs_factor_summator::factor_cancel(Integer &p,factor_t &fp,Integer &q,factor_t &fq){
 		factor_resize(fmul[0],std::min(fp.size,fq.size));
 		mp_uint i=0,j=0,k=0;
 		while(i<fp.size&&j<fq.size){
@@ -167,7 +180,7 @@ namespace ilmp{
 			factor_compact(fq);
 		}
 	}
-	void pi_calc::factor_swap(factor_t &f1,factor_t &f2){
+	void bs_factor_summator::factor_swap(factor_t &f1,factor_t &f2){
 		mp_uint tmp1,tmp2,*ptmp1,*ptmp2;
 		tmp1=f1.capacity;
 		tmp2=f1.size;
@@ -183,7 +196,7 @@ namespace ilmp{
 		f2.power=ptmp2;
 	}
 
-	void pi_calc::build_sieve(mp_uint n){
+	void bs_factor_summator::build_sieve(mp_uint n){
 		mp_uint m=std::sqrt((mp_prec_t)(n+1));
 
 		for(mp_uint i=3;i<=n;i+=2){
@@ -214,7 +227,7 @@ namespace ilmp{
 		}
 	}
 
-	void pi_calc::bs_mulgcd(mp_uint a,mp_uint b,int top){
+	void bs_factor_summator::bs_mulgcd(mp_uint a,mp_uint b,int top){
 		Integer &gcd1=gcds[top],&gcd2=gcds[top+1];
 		if(b-a<=32){
 			gcd1=1;
@@ -232,7 +245,7 @@ namespace ilmp{
 		}
 	}
 
-	void pi_calc::bs_chudnovsky(mp_uint a,mp_uint b,int needp,int level,int top){
+	void bs_factor_summator::bs_chudnovsky(mp_uint a,mp_uint b,int needp,int level,int top){
 		Integer &p1=ps[top],&p2=ps[top+1];
 		Integer &q1=qs[top],&q2=qs[top+1];
 		Integer &t1=ts[top],&t2=ts[top+1];
@@ -281,14 +294,10 @@ namespace ilmp{
 		}
 	}
 
-	pi_calc::pi_calc(mp_uint digits,int base){
+	Number bs_factor_summator::Pi(mp_prec_t precision){
 		mp_uint terms;
-		mp_prec_t log2b=std::log2((mp_prec_t)base);
-		mp_prec_t precision=digits*log2b;
-		if(precision<MIN_PREC_BITS)precision=MIN_PREC_BITS;
-		if(precision>MAX_PREC_BITS)precision=MAX_PREC_BITS;
-		terms=precision/(3*std::log2((mp_prec_t)C/12));
-		terms+=1;
+		terms=std::ceil(precision/(3*std::log2((mp_prec_t)C/12)));
+		terms=std::max(terms,mp_uint(1));
 
 		mp_uint smax=std::max(C/64,6*terms-1);
 		mp_uint ssize=(smax+1)/2;
@@ -317,16 +326,132 @@ namespace ilmp{
 
 		delete[] ps;
 
-		pi=C/12*C/12*C;
-		pi.set_precision(precision);
-		pi=sqrt(pi)*Q/T;
+		Number pi=C/12*C/12*C;
+		pi.prec=precision;
+		return sqrt(pi)*Q/T;
 	}
 
 	Number Pi(mp_uint digits,int base){
 		if(base<0)base=-base;
-		if(base<2||base>36)return Number();
-		return pi_calc(digits,base).pi;
+		if(base<2)return Number();
+		mp_prec_t log2b=std::log2((mp_prec_t)base);
+		mp_prec_t precision=digits*log2b;
+		if(precision<MIN_PREC_BITS)precision=MIN_PREC_BITS;
+		if(precision>MAX_PREC_BITS)precision=MAX_PREC_BITS;
+		return bs_factor_summator().Pi(precision);
 	}
+
+	//return most composite factor of x below smax
+	//note the result may not be the greatest possible factor,
+	//e.g. when x=19348597=29*41*16273, 29*41=1189 will be returned, but not 16273
+	mp_uint max_factor_below(mp_uint x,mp_uint smax){
+		if(x<=smax)return x;
+		mp_uint result=1,imax=smax;
+		for(mp_uint i=3;i<=imax;i+=2){
+			while(x%i==0){
+				x/=i;
+				mp_uint next=result*i;
+				if(next>smax)return result;
+				result=next;
+				imax=smax/result;
+			}
+		}
+		return result;
+	}
+	void bs_factor_summator::bs_acoti(mp_uint a,mp_uint b,int needp,int level,int top){
+		Integer &p1=ps[top],&p2=ps[top+1];
+		Integer &q1=qs[top],&q2=qs[top+1];
+		Integer &t1=ts[top],&t2=ts[top+1];
+		factor_t &fp1=fps[top],&fp2=fps[top+1];
+		factor_t &fq1=fqs[top],&fq2=fqs[top+1];
+		if(b==a+1){
+			p1=2*a+1;
+			q1=x2*p1;
+			t1=coef;
+			if(a&trigflag)t1.neg();
+			factor_set_bp(fp1,2*a+1,1);
+			factor_set_bp(fq1,2*a+1,1);
+			factor_mul_bp(fq1,x_factor,2);
+		}
+		else{
+			mp_uint mid=a+(b-a)/2;
+			bs_acoti(a,mid,1,level+1,top);
+			bs_acoti(mid,b,needp,level+1,top+1);
+			if(level>=4)
+				factor_cancel(p1,fp1,q2,fq2);
+			t1*=q2;
+			t2*=p1;
+			t1+=t2;
+			q1*=q2;
+			factor_mul(fq1,fq2);
+			if(needp){
+				p1*=p2;
+				factor_mul(fp1,fp2);
+			}
+		}
+	}
+	Number bs_factor_summator::acoti(mp_int _coef,mp_uint _x,mp_prec_t precision,int _hyperbolic){
+		mp_uint terms;
+		terms=1+std::ceil(precision/(2*std::log2((mp_prec_t)_x)));
+
+		trigflag=!_hyperbolic;
+		coef=_coef;
+		x2=_x;
+		coef*=x2;
+		x2*=x2;
+
+		mp_uint smax=std::max(MIN_SIEVE_ACOTI,2*terms-1);
+		mp_uint ssize=(smax+1)/2;
+		sieve=new sieve_t[ssize];
+		memset(sieve,0,ssize*sizeof(sieve_t));
+		build_sieve(smax);
+
+		while((_x&1)==0)_x>>=1;
+		x_factor=max_factor_below(_x,smax);
+		ps=new Integer[MAX_DEPTH*4];
+		qs=ps+MAX_DEPTH;
+		ts=qs+MAX_DEPTH;
+		gcds=ts+MAX_DEPTH;
+		fps=new factor_t[MAX_DEPTH*2+2];
+		fqs=fps+MAX_DEPTH;
+		fmul=fqs+MAX_DEPTH;
+		fbp=fmul+1;
+
+		bs_acoti(0,terms,0,0,0);
+
+		delete[] sieve;
+		delete[] fps;
+
+		Number Q,T;
+		Q=std::move(qs[0]);
+		T=std::move(ts[0]);
+		delete[] ps;
+
+		T.prec=precision;
+		return T/Q;
+	}
+
+	//return coef*arctan[h if hyperbolic](1/x) for x>=2
+	Number acoti(mp_int _coef,mp_uint _x,mp_prec_t precision,int _hyperbolic){
+		if(_x<=1){
+			if(_x==0)return 0;
+			return Number();
+		}
+		if(!(precision>MIN_PREC_BITS))precision=MIN_PREC_BITS;
+		if(  precision>MAX_PREC_BITS )precision=MAX_PREC_BITS;
+		return bs_factor_summator().acoti(_coef,_x,precision,_hyperbolic);
+	}
+    Number const_ln2(mp_prec_t precision){
+		if(!(precision>MIN_PREC_BITS))precision=MIN_PREC_BITS;
+		if(  precision>MAX_PREC_BITS )precision=MAX_PREC_BITS;
+        bs_factor_summator bs;
+        Number ln2;
+        ln2 =bs.acoti(18,  26,precision,1);
+        ln2-=bs.acoti( 2,4801,precision,1);
+        ln2+=bs.acoti( 8,8749,precision,1);
+        ln2.prec=precision;
+        return ln2;
+    }
 
 	//other constants
 	class prime_sieve{
@@ -392,7 +517,7 @@ namespace ilmp{
 		mp_uint *prime;
 		Integer *qs,*ts;
 		void bs_calc(mp_uint a,mp_uint b,int level,int top);
-		pba_calc(mp_uint digits,int base);
+		pba_calc(mp_prec_t precision);
 	};
 
 	void pba_calc::bs_calc(mp_uint a,mp_uint b,int level,int top){
@@ -411,12 +536,8 @@ namespace ilmp{
 			t1+=t2;
 		}
 	}
-	pba_calc::pba_calc(mp_uint digits,int base){
+	pba_calc::pba_calc(mp_prec_t precision){
 		mp_uint terms;
-		mp_prec_t log2b=std::log2((mp_prec_t)base);
-		mp_prec_t precision=digits*log2b;
-		if(precision<MIN_PREC_BITS)precision=MIN_PREC_BITS;
-		if(precision>MAX_PREC_BITS)precision=MAX_PREC_BITS;
 
 		mp_prec_t smax=precision*std::log((mp_prec_t)2);
 		smax+=std::sqrt(smax)*4+4;
@@ -435,14 +556,18 @@ namespace ilmp{
 		Q=std::move(qs[0]);
 		T=std::move(ts[0]);
 		delete[] qs;
-		T.set_precision(precision);
+		T.prec=precision;
 		pba=T/Q;
 	}
 
 	Number Prime_BuenosAires(mp_uint digits,int base){
 		if(base<0)base=-base;
-		if(base<2||base>36)return Number();
-		return pba_calc(digits,base).pba;
+		if(base<2)return Number();
+		mp_prec_t log2b=std::log2((mp_prec_t)base);
+		mp_prec_t precision=digits*log2b;
+		if(precision<MIN_PREC_BITS)precision=MIN_PREC_BITS;
+		if(precision>MAX_PREC_BITS)precision=MAX_PREC_BITS;
+		return pba_calc(precision).pba;
 	}
 
 	class e_calc{
@@ -450,7 +575,7 @@ namespace ilmp{
 		Number e;
 		Integer *qs,*ts;
 		void bs_calc(mp_uint a,mp_uint b,int level,int top);
-		e_calc(mp_uint digits,int base);
+		e_calc(mp_prec_t precision);
 	};
 
 	void e_calc::bs_calc(mp_uint a,mp_uint b,int level,int top){
@@ -469,12 +594,8 @@ namespace ilmp{
 			t1+=t2;
 		}
 	}
-	e_calc::e_calc(mp_uint digits,int base){
+	e_calc::e_calc(mp_prec_t precision){
 		mp_uint terms;
-		mp_prec_t log2b=std::log2((mp_prec_t)base);
-		mp_prec_t precision=digits*log2b;
-		if(precision<MIN_PREC_BITS)precision=MIN_PREC_BITS;
-		if(precision>MAX_PREC_BITS)precision=MAX_PREC_BITS;
 
 		mp_prec_t eprec=precision*std::log((mp_prec_t)2);
 		mp_prec_t z=eprec/std::exp((mp_prec_t)1),w=std::log(1+z),ew=1+z;
@@ -500,7 +621,7 @@ namespace ilmp{
 		Q=std::move(qs[0]);
 		T=std::move(ts[0]);
 		delete[] qs;
-		T.set_precision(precision);
+		T.prec=precision;
 		e=T/Q;
 		//e+=1
 		e.data[e.dotp]+=1;
@@ -508,7 +629,11 @@ namespace ilmp{
 
 	Number E(mp_uint digits,int base){
 		if(base<0)base=-base;
-		if(base<2||base>36)return Number();
-		return e_calc(digits,base).e;
+		if(base<2)return Number();
+		mp_prec_t log2b=std::log2((mp_prec_t)base);
+		mp_prec_t precision=digits*log2b;
+		if(precision<MIN_PREC_BITS)precision=MIN_PREC_BITS;
+		if(precision>MAX_PREC_BITS)precision=MAX_PREC_BITS;
+		return e_calc(precision).e;
 	}
 }

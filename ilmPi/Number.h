@@ -371,4 +371,8 @@ Note:
     Number Pi(mp_uint digits,int base=10);
     Number E(mp_uint digits,int base=10);
     Number Prime_BuenosAires(mp_uint digits,int base=10);
+    //return coef * arctan[h if hyperbolic] (1/x) for x>=2
+    //precision in bits.
+    Number acoti(mp_int _coef,mp_uint _x,mp_prec_t precision,int _hyperbolic=0);
+    Number const_ln2(mp_prec_t precision);
 }
