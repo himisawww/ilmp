@@ -147,10 +147,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="calctime.cpp" />
-    <ClCompile Include="examples.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="examples.cpp" />
     <ClCompile Include="Integer.cpp" />
     <ClCompile Include="Number.cpp" />
     <ClCompile Include="pimain.cpp" />
