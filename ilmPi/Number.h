@@ -33,8 +33,6 @@ namespace ilmp{
     //max supported number of limbs
     const mp_int MAX_LIMBS=MAX_PREC_INT>>6;
 
-    const mp_int DIV_MULINV_THRESHOULD=320;
-
     //precision configurations
     
     //minimum precision bits,

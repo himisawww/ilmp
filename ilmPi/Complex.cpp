@@ -105,57 +105,34 @@ namespace ilmp{
     Complex operator*(const Complex &z,const Number &x){ return Complex(z.re*x,z.im*x); }
     Complex operator/(const Complex &z,const Number &x){
         bool use_inv=false;
-        mp_int nzr,nzi,na,nb,pn;
-        mp_prec_t pz,pr,pzr,pzi;
+        mp_prec_t pz,pr;
         //if z.re/im,x all are non-zero number
         if(z.re.data&&z.re.ssize&&z.im.data&&z.im.ssize&&x.data&&x.ssize){
-            //assume na<n(pa), i.e. z normalized
-            na=std::max(nzr=z.re.size(),nzi=z.im.size());
-            nb=x.size();
-            pz=std::max(pzr=z.re.prec,pzi=z.im.prec);
+            pz=std::max(z.re.prec,z.im.prec);
             pr=std::min(pz,x.prec);
-            if(pr==INT_PREC){
-                pzr=z.re.is_int()?(nzr-z.re.dotp)*MP_LIMB_BITS+1+MIN_PREC_BITS:pzr;
-                pzi=z.im.is_int()?(nzi-z.im.dotp)*MP_LIMB_BITS+1+MIN_PREC_BITS:pzi;
-                pz=std::max(pzr,pzi);
-                pz=std::max(pz,(nb-x.dotp)*MP_LIMB_BITS+1+MIN_PREC_BITS);
-                pn=precision_limbs(pz);
-            }
-            else{
-                pn=precision_limbs(pr);
-            }
-            const mp_uint COMPLEX_DIVINV_MIN=5;
-            const mp_uint COMPLEX_DIVINV_MAX=20000;
-            const mp_uint COMPLEX_DIVINV_SUPPRESS=50;
-            const mp_prec_t COMPLEX_DIVINV_FACTOR=0.2;
-            if(pn>COMPLEX_DIVINV_MIN){
-                mp_prec_t kpn=std::min(pn-COMPLEX_DIVINV_MIN,COMPLEX_DIVINV_MAX);
-                kpn=COMPLEX_DIVINV_FACTOR*std::sqrt(std::sqrt(kpn));
-                //if na(z) short enough and nb(x) long enough, 
-                //z*(1/x) (one inv and two mul) will be faster than z/x (two div)
-                use_inv=na+COMPLEX_DIVINV_SUPPRESS/pn<mp_uint(kpn*nb);
+            if(!(pr==INT_PREC)){
+                mp_int pn=precision_limbs(pr);
+                const mp_uint COMPLEX_DIVINV_MIN=5;
+                const mp_uint COMPLEX_DIVINV_MAX=20000;
+                const mp_uint COMPLEX_DIVINV_SUPPRESS=50;
+                const mp_prec_t COMPLEX_DIVINV_FACTOR=0.2;
+                if(pn>COMPLEX_DIVINV_MIN){
+                    mp_prec_t kpn=std::min(pn-COMPLEX_DIVINV_MIN,COMPLEX_DIVINV_MAX);
+                    kpn=COMPLEX_DIVINV_FACTOR*std::sqrt(std::sqrt(kpn));
+                    //if na(z) short enough and nb(x) long enough, 
+                    //z*(1/x) (one inv and two mul) will be faster than z/x (two div)
+                    //assume na<n(pa), i.e. z normalized
+                    mp_int na=std::max(z.re.size(),z.im.size());
+                    mp_int nb=std::min(x.size(),pn);
+                    use_inv=na+COMPLEX_DIVINV_SUPPRESS/pn<mp_uint(kpn*nb);
+                }
             }
         }
         if(use_inv){
-            if(pr==INT_PREC){
-                Number rx=1;
-                rx.prec=pz;
-                rx/=x;
-                Complex result;
-                rx.prec=z.re.is_int()?MIN_PREC_BITS+std::max(z.re.logbit(),x.logbit()):pzr+MP_LIMB_BITS;
-                result.re=z.re*rx;
-                if(z.re.is_int())result.re.try_fix();
-                rx.prec=z.im.is_int()?MIN_PREC_BITS+std::max(z.im.logbit(),x.logbit()):pzi+MP_LIMB_BITS;
-                result.im=z.im*rx;
-                if(z.im.is_int())result.im.try_fix();
-                return result;
-            }
-            else{
-                Number rx=1;
-                rx.prec=pz+MP_LIMB_BITS;
-                rx/=x;
-                return Complex(z.re*rx,z.im*rx);
-            }
+            Number rx=1;
+            rx.prec=pz+MP_LIMB_BITS;
+            rx/=x;
+            return Complex(z.re*rx,z.im*rx);
         }
         else{
             return Complex(z.re/x,z.im/x);

@@ -537,6 +537,8 @@ do{                                                  \
         mp_int pn=precision_limbs(result.prec);
         nb=std::min(nb,pn);
 
+        const mp_int DIV_MULINV_THRESHOULD=320;
+
         if(pn+na-(pmin==INT_PREC?Num1.dotp:0)+DIV_MULINV_THRESHOULD<2*nb){
             //a*invb
 
