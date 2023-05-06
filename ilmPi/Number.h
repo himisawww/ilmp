@@ -440,5 +440,4 @@ Note:
     Complex operator*(const Complex&,const Complex&);
     Complex operator/(const Complex&,const Complex&);
 
-    extern bool DIV_CONFIG;
 }
