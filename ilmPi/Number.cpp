@@ -876,7 +876,8 @@ do{                                                  \
             Number basepow(base);
             basepow.prec=calcprec+std::log2(std::abs((mp_prec_t)eval));
             prec=calcprec;
-            *this=_mul(*this,_pow(basepow,eval));
+        //  *this=_mul(*this,_pow(basepow,eval));
+            *this=eval>0?_mul(*this,_pow(basepow,eval)):_div(*this,_pow(basepow,-eval));
             prec=pushprec;
         }
         normalize();
@@ -951,7 +952,8 @@ do{                                                  \
                 if(eval){
                     Number basepow(base);
                     basepow.prec=prec+std::log2(std::abs((mp_prec_t)eval));
-                    lint=_mul(*this,_pow(basepow,eval));
+                //  lint=_mul(*this,_pow(basepow,eval));
+                    lint=eval>0?_mul(*this,_pow(basepow,eval)):_div(*this,_pow(basepow,-eval));
                     eval=-eval;
                     plint=&lint;
                 }
