@@ -33,6 +33,8 @@ namespace ilmp{
     //max supported number of limbs
     const mp_int MAX_LIMBS=MAX_PREC_INT>>6;
 
+    const mp_int DIV_MULINV_THRESHOULD=320;
+
     //precision configurations
     
     //minimum precision bits,
@@ -342,6 +344,8 @@ Note:
         //if overprec or overflow
         //if size too long compared to prec
         void normalize();
+        //fix this to integer if should be
+        void try_fix();
 
         Number &operator =(Number&&);
         Number &operator =(const Number&);
@@ -381,4 +385,60 @@ Note:
     //precision in bits.
     Number acoti(mp_int _coef,mp_uint _x,mp_prec_t precision,int _hyperbolic=0);
     Number const_ln2(mp_prec_t precision);
+
+    //basically two numbers...
+    class Complex{
+    public:
+        Number re,im;
+        Complex();
+        Complex(Number &&);
+        Complex(const Number &);
+        Complex(Complex &&);
+        Complex(const Complex &);
+        template<typename T1,typename T2>
+        Complex(T1 &&_re,T2 &&_im):
+            re(std::forward<T1>(_re)),
+            im(std::forward<T2>(_im)){}
+
+        //this=nan or inf, release allocated memory
+        void clear();
+        //this=-this
+        void neg();
+        //this.im=-this.im
+        void conjugate();
+        //non of Re/Im nan or inf
+        bool is_num() const;
+        void swap(Complex&);
+
+        Complex &operator =(Number&&);
+        Complex &operator =(const Number&);
+        Complex &operator+=(const Number&);
+        Complex &operator-=(const Number&);
+        Complex &operator*=(const Number&);
+        Complex &operator/=(const Number&);
+
+        Complex &operator =(Complex&&);
+        Complex &operator =(const Complex&);
+        Complex &operator+=(const Complex&);
+        Complex &operator-=(const Complex&);
+        Complex &operator*=(const Complex&);
+        Complex &operator/=(const Complex&);
+    };
+
+    Complex operator-(const Complex&);
+    Complex operator+(const Complex&);
+    Complex operator+(const Number&,const Complex&);
+    Complex operator-(const Number&,const Complex&);
+    Complex operator*(const Number&,const Complex&);
+    Complex operator/(const Number&,const Complex&);
+    Complex operator+(const Complex&,const Number&);
+    Complex operator-(const Complex&,const Number&);
+    Complex operator*(const Complex&,const Number&);
+    Complex operator/(const Complex&,const Number&);
+    Complex operator+(const Complex&,const Complex&);
+    Complex operator-(const Complex&,const Complex&);
+    Complex operator*(const Complex&,const Complex&);
+    Complex operator/(const Complex&,const Complex&);
+
+    extern bool DIV_CONFIG;
 }

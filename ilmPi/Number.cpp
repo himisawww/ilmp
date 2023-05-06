@@ -5,7 +5,7 @@
 #include<algorithm>
 
 //#define DEBUG_LOG
-#include<vector>
+//#include<vector>
 
 namespace ilmp{
     mp_prec_t MIN_PREC_BITS=32;
@@ -334,6 +334,12 @@ do{                                                  \
             memmove(data,data+cutoff,nsize*sizeof(mp_limb_t));
         }
     }
+    void Number::try_fix(){
+        for(mp_int i=0;i<dotp;++i)
+            if(data[i])return;
+        prec=INT_PREC;
+    }
+
     int compare(const Number &Num1,const Number &Num2,bool abscomp){
         if(!Num1.data||!Num2.data){
             if(Num1.is_nan()||Num2.is_nan())return -2;
@@ -520,55 +526,71 @@ do{                                                  \
         mp_srcptr pb=Num2.data+size2;
         
         mp_prec_t pmin=std::min(Num1.prec,Num2.prec);
-        mp_int na;
+        mp_int na=size1;
         mp_int nb=size2;
 
         int signres=sign1==sign2?1:-1;
-        if(pmin==INT_PREC){//int div
-            result.prec=INT_PREC;
-            int cmp12=compare(Num1,Num2,true);
-            if(cmp12<=0){
-                result.data=result.value;
-                result.ssize=signres&~cmp12;
-                result.dotp=0;
-                result.value[0]=1;
-                return result;
+        if(pmin==INT_PREC)
+            result.prec=MIN_PREC_BITS+std::max(Num1.logbit(),Num2.logbit());
+        else 
+            result.prec=-log2add(-Num1.prec,-Num2.prec);
+        mp_int pn=precision_limbs(result.prec);
+        nb=std::min(nb,pn);
+
+        if(pn+na-(pmin==INT_PREC?Num1.dotp:0)+DIV_MULINV_THRESHOULD<2*nb){
+            //a*invb
+
+            while(pa[-na]==0)--na;
+
+            mp_ptr pinv=new mp_limb_t[pn+1];
+            ilmp_inv_(pinv,pb-nb,nb,pn-nb);
+
+            mp_int rn=na+pn+1;
+            mp_ptr pr;
+
+            if(rn<=2)pr=result.value;
+            else{
+                result.alloc_size=reserve_limbs_lower(rn);
+                pr=new mp_limb_t[result.alloc_size];
             }
 
-            while(pb[-nb]==0)--nb;
-            na=size1-Num1.dotp+(nb-size2+Num2.dotp);
+            ilmp_mul_(pr,pinv,pn+1,pa-na,na);
+
+            while(pr[rn-1]==0)--rn;
+            delete[] pinv;
+            result.data=pr;
+            result.ssize=signres*rn;
+            result.dotp=(na-size1+Num1.dotp)-(-pn-size2+Num2.dotp);
         }
-        else{//float div
-            mp_int pn=precision_limbs(pmin);
-            nb=std::min(nb,pn);
+        else{
+
             while(pb[-nb]==0)--nb;
             na=nb+pn;
-            result.prec=-log2add(-Num1.prec,-Num2.prec);
+
+            mp_ptr tmp=nullptr;
+            if(na>size1){
+                tmp=new mp_limb_t[na];
+                memset(tmp,0,(na-size1)*sizeof(mp_limb_t));
+                memcpy(tmp+na-size1,Num1.data,size1*sizeof(mp_limb_t));
+                pa=tmp+na;
+            }
+
+            mp_int rn=na-nb+1;
+            mp_ptr pr;
+            if(rn<=2)pr=result.value;
+            else{
+                result.alloc_size=reserve_limbs_lower(rn);
+                pr=new mp_limb_t[result.alloc_size];
+            }
+            ilmp_div_(pr,nullptr,pa-na,na,pb-nb,nb);
+
+            while(pr[rn-1]==0)--rn;
+            if(tmp)delete[] tmp;
+            result.data=pr;
+            result.ssize=signres*rn;
+            result.dotp=(na-size1+Num1.dotp)-(nb-size2+Num2.dotp);
+            if(pmin==INT_PREC)result.try_fix();
         }
-
-        mp_ptr tmp=nullptr;
-        if(na>size1){
-            tmp=new mp_limb_t[na];
-            memset(tmp,0,(na-size1)*sizeof(mp_limb_t));
-            memcpy(tmp+na-size1,Num1.data,size1*sizeof(mp_limb_t));
-            pa=tmp+na;
-        }
-
-        mp_int rn=na-nb+1;
-        mp_ptr pr;
-        if(rn<=2)pr=result.value;
-        else{
-            result.alloc_size=reserve_limbs_lower(rn);
-            pr=new mp_limb_t[result.alloc_size];
-        }
-        ilmp_div_(pr,nullptr,pa-na,na,pb-nb,nb);
-
-        while(pr[rn-1]==0)--rn;
-        if(tmp)delete[] tmp;
-
-        result.data=pr;
-        result.ssize=signres*rn;
-        result.dotp=(na-size1+Num1.dotp)-(nb-size2+Num2.dotp);
         return result;
     }
     Number operator/(const Number &Num1,const Number &Num2){
@@ -610,8 +632,8 @@ do{                                                  \
             result=_mul(result,result);
             if(un&i)result=_mul(x,result);
         } while(i>>=1);
-        if(sign)result=_div(1,result);
         result.prec=resprec;
+        if(sign)result=_div(1,result);
         return result;
     }
     Number pow(const Number &x,mp_int n){
@@ -1079,13 +1101,13 @@ do{                                                  \
             result.data=pr;
             result.alloc_size=newsize;
         }
-
+        
+        result.ssize=rn;
         if(!rn){
             result.clear();
             result.data=result.value;
         }
         else{
-            result.ssize=rn;
             result.dotp=-rend;
         }
     }
@@ -1228,30 +1250,27 @@ do{                                                  \
         dotpx-=shr32;
         mp_int nf;
         bool intx=x.is_int();
-        if(intx){
-            nf=-dotpx/2;
-        }
-        else{
-            mp_int pn=precision_limbs(x.prec);
-            nf=pn-na/2;
-            if(nf<0){
-                na+=nf*2;
-                nf=0;
-            }
+
+        result.prec=1+(intx?MIN_PREC_BITS+x.logbit():x.prec);
+        mp_int pn=precision_limbs(result.prec);
+        nf=pn-na/2;
+        if(nf<0){
+            na+=nf*2;
+            nf=0;
         }
 
         mp_int rn=nf+na/2+1;
         mp_ptr pa=nullptr,pr=new mp_limb_t[rn];
-        if(intx)pa=new mp_limb_t[rn];
+
         ilmp_sqrt_(pr,pa,px-na,na,nf);
-        if(intx)delete[] pa;
+
         if(shr32)ilmp_shr_(pr,pr,rn,32);
         while(pr[rn-1]==0)--rn;
 
         result.data=pr;
         result.ssize=rn;
         result.dotp=nf+dotpx/2;
-        result.prec=x.prec+1;
+        if(intx)result.try_fix();
         return result;
     }
     Number sqrt(const Number &x){
