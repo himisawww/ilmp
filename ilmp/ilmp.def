@@ -34,6 +34,7 @@ EXPORTS
 	ilmp_mul_
 	ilmp_div_
 	ilmp_sqrt_
+	ilmp_inv_
 
 	ilmp_from_str_
 	ilmp_to_str_

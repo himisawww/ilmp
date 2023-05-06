@@ -37,16 +37,15 @@ int main_example(){
     {
         //initialize by int
         Number a(25),b(7);
-        std::cout<<"Integer division will result in an integer.\n";
+        std::cout<<"Integer division may result into floating point values.\n";
         std::cout<<"      a = "<<  a<<"\n";
         std::cout<<"      b = "<<  b<<"\n";
         std::cout<<"  a / b = "<<a/b<<"\n";
         std::cout<<
-            "Change one of the operands to floating point type"
-            " by set_precision,\n  then result will also be floating point.\n";
+            "Unless the division is exact\n"
+            "  where the result will also be an integer.\n";
         
-        //32-bit precision
-        a.set_precision(32);
+        a=42;
 
         std::cout<<"      a = "<<  a<<"\n";
         std::cout<<"      b = "<<  b<<"\n";
@@ -55,7 +54,7 @@ int main_example(){
         std::cout<<"This is same for sqrt\n";
         std::cout<<"     b  = "<<  b<<"\n";
         std::cout<<"sqrt(b) = "<<sqrt(b)<<"\n";
-        b.set_precision(32);
+        b=81;
         std::cout<<"     b  = "<<  b<<"\n";
         std::cout<<"sqrt(b) = "<<sqrt(b)<<"\n";
     }
@@ -72,7 +71,7 @@ int main_example(){
         std::cout<<"  a + b = "<<a+b<<"\n";
         std::cout<<"  a - b = "<<a-b<<"\n";
         std::cout<<"  a * b = "<<a*b<<"\n";
-        std::cout<<"a^2 / b = "<<pow(a,2)/b<<" ( Note: integer division )\n";
+        std::cout<<"  a / b = "<<a/b<<"\n";
     }
 
     std::cout<<std::endl;
@@ -123,15 +122,16 @@ int main_example(){
         std::cout<<" sqrt(2) = "<<sqrt(Number("2`100"))<<"\n";
 
         //a fast algorithm for calculating Pi is implemented
-        std::cout<<"      Pi = "<<ilmp::Pi(100)<<"\n";
+        std::cout<<"      Pi = "<<ilmp::Pi(ilmp::convert_precision(100))<<"\n";
 
-        //a tiny program to calculate E ( 1 + 1/1! + 1/2! + ... + 1/n! )
+        //a fast algorithm for calculating E is also implemented as ilmp::E(mp_prec_t)
+        //however here we use a tiny program to calculate E ( 1 + 1/1! + 1/2! + ... + 1/n! )
         int i=0;
-        Number e=0,ei=1;
-        ei.set_precision(100*std::log2(10));
+        Number e=1,ei=1;
+        ei.set_precision(ilmp::convert_precision(100));
         do{
-            e+=ei;
             ei/=++i;
+            e+=ei;
             //x.logbit() will give approximately log2(x), 
             //x.precision() will give the amount of significant bits of x.
             //if ei is smaller than the least significant bit of e,
