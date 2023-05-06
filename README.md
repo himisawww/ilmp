@@ -26,20 +26,20 @@ An example.cpp exists in ilmPi directory, one can easily modify the code to run 
 Example output is as follows:
 
 ```
-Integer division will result in an integer.
+Integer division may result into floating point values.
       a = 25
       b = 7
-  a / b = 3
-Change one of the operands to floating point type by set_precision,
-  then result will also be floating point.
-      a = 25.000000000
+  a / b = 3.57142857143
+Unless the division is exact
+  where the result will also be an integer.
+      a = 42
       b = 7
-  a / b = 3.571428571
+  a / b = 6
 This is same for sqrt
      b  = 7
-sqrt(b) = 2
-     b  = 7.000000000
-sqrt(b) = 2.6457513111
+sqrt(b) = 2.64575131106
+     b  = 81
+sqrt(b) = 9
 
 Number class can handle arbitrary precision arithmetic.
       a = 123456789012345678901234567890
@@ -47,7 +47,7 @@ Number class can handle arbitrary precision arithmetic.
   a + b = 356790122345679012234567901223
   a - b = -109876544320987654432098765443
   a * b = 28806584102880658410288065840958847736995884773699588477370
-a^2 / b = 65321051799595014644980078125 ( Note: integer division )
+  a / b = 0.5291005243386243381481481481007558578919
 
 floating point initialization may not be accurate...
       a = 0.69999999
@@ -73,7 +73,7 @@ Some other examples:
  3 ^ 200 = 265613988875874769338781322035779626829233452653394495974574961739092490901302182994384699044001
  sqrt(2) = 1.41421356237309504880168872420969807856967187537694807317667973799073247846210703885038753432764157274
       Pi = 3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170680
-       E = 2.7182818284590452353602874713526624977572470936999595749669676277240766303535475945713821785251664273
+       E = 2.7182818284590452353602874713526624977572470936999595749669676277240766303535475945713821785251664274
 
 Number class can automatically handle both integer and floating point values.
 a string containing either exponent marker *^ or precision marker ` will be considered as floating point.
@@ -88,8 +88,8 @@ What will happen if you calculate 1 - 1*^-10000000000000 ?
 Please just don't do that.
 
 Integer class only supports integers, but has better performance.
-  Number: sum(10000000) = 50000005000000 in 0.601723s
- Integer: sum(10000000) = 50000005000000 in 0.306624s
+  Number: sum(10000000) = 50000005000000 in 0.544581s
+ Integer: sum(10000000) = 50000005000000 in 0.270887s
        ...  but they are all slower than built-in types.
-     int: sum(10000000) = 50000005000000 in 0.0030516s
+     int: sum(10000000) = 50000005000000 in 0.0028664s
 ```
