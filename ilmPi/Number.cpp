@@ -1069,6 +1069,7 @@ do{                                                  \
         mp_int rend=std::max(std::max(senda,sendb),hend);
         mp_int rn=rstart-rend+1;
 
+        if(!result.data)result.data=result.value;
         mp_int sha=Num1.dotp+rend,shb=Num2.dotp+rend;
         mp_srcptr pa=Num1.data,pb=Num2.data;
         mp_ptr pr=result.data;
@@ -1324,6 +1325,7 @@ do{                                                  \
             return;
         }
 
+        if(!result.data)result.data=result.value;
         mp_prec_t rprec=Num.prec;
         bool intn=rprec==INT_PREC;
         if(intn&&is_shr)rprec=MIN_PREC_BITS+Num.logbit();
