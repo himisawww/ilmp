@@ -83,18 +83,22 @@ mp_limb_t ilmp_shr1sub_nc_(mp_ptr dst,mp_srcptr numa,mp_srcptr numb,mp_size_t n,
 
 //[dst,na]=[numa,na]>>shr, shr-MSBs of [dst,na] filled by 0
 //need(na>0, 0<=shr<64, eqsep(dst,numa))
+//dst<numa is acceptable, i.e. on-site long shr
 //shr-MSBs of returned limb filled by [numa,na]'s shr-LSBs, the rest bits are 0
 mp_limb_t ilmp_shr_(mp_ptr dst,mp_srcptr numa,mp_size_t na,mp_size_t shr);
 //[dst,na]=[numa,na]>>shr, shr-MSBs of [dst,na] filled by shr-MSBs of c
 //need(na>0, 0<=shr<64, eqsep(dst,numa), (64-shr)-LSBs of c are 0)
+//dst<numa is acceptable, i.e. on-site long shr
 //shr-MSBs of returned limb filled by [numa,na]'s shr-LSBs, the rest bits are 0
 mp_limb_t ilmp_shr_c_(mp_ptr dst,mp_srcptr numa,mp_size_t na,mp_size_t shr,mp_limb_t c);
 //[dst,na]=[numa,na]<<shl, shl-LSBs of [dst,na] filled by 0
 //need(na>0, 0<=shl<64, eqsep(dst,numa))
+//dst>numa is acceptable, i.e. on-site long shl
 //shl-LSBs of returned limb filled by [numa,na]'s shl-MSBs, the rest bits are 0
 mp_limb_t ilmp_shl_(mp_ptr dst,mp_srcptr numa,mp_size_t na,mp_size_t shl);
 //[dst,na]=[numa,na]<<shl, shl-LSBs of [dst,na] filled by shl-LSBs of c
 //need(na>0, 0<=shl<64, eqsep(dst,numa), (64-shl)-MSBs of c are 0)
+//dst>numa is acceptable, i.e. on-site long shl
 //shl-LSBs of returned limb filled by [numa,na]'s shl-MSBs, the rest bits are 0
 mp_limb_t ilmp_shl_c_(mp_ptr dst,mp_srcptr numa,mp_size_t na,mp_size_t shl,mp_limb_t c);
 //[dst,na]=~[numa,na], need(na>0, eqsep(dst,numa))
