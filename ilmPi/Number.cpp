@@ -273,7 +273,7 @@ do{                                                  \
         }
 
         if(!is_int()){
-            if(prec<=0){
+            if(prec<=-MIN_PREC_BITS){
                 mp_prec_t new_prec=prec-logbit();
                 clear();
                 data=value;
@@ -814,7 +814,7 @@ do{                                                  \
         if(haspval)mprec=(pval+fracpval)*log2base;
         else if(mprec<MIN_PREC_BITS)mprec=MIN_PREC_BITS;
         if(mprec>MAX_PREC_BITS)mprec=MAX_PREC_BITS;
-        bool mpv=mprec<=0;
+        bool mpv=mprec<=-MIN_PREC_BITS;
         if(mpv)apprlog2-=mprec;
         if(apprlog2>MAX_EXP_BITS){
             if(!mpv)ssize=sign?-1:1;
@@ -896,8 +896,8 @@ do{                                                  \
         }
         else{
             mp_prec_t ev;
-            if(ssize==0){
-                ev=prec;
+            if(ssize==0||prec<=0){
+                ev=(ssize==0?-prec:logbit()-prec);
                 lm=1;
             }
             else{
@@ -933,7 +933,7 @@ do{                                                  \
 
         mp_int eval=0;
 
-        if(ssize==0){
+        if(ssize==0||prec<=0){
             pstr[0]='0';
             if(is_int()){
                 pstr[1]=0;
@@ -941,7 +941,7 @@ do{                                                  \
             }
             pstr[1]='.';
             pstr+=2;
-            eval=std::round(-prec/log2base);
+            eval=std::round((ssize==0?-prec:logbit()-prec)/log2base);
         }
         else{
             Number lint;
@@ -1283,6 +1283,169 @@ do{                                                  \
         DEBUG_PRINT("sqrt",std::vector<const Number*>{&x,&result});
         return result;
     }
+
+    void shift(Number &result,const Number &Num,mp_int sh,bool is_shr){
+        if(!Num.is_num()||!Num.ssize){
+            result=Num;
+            if(result.is_num()){
+                mp_prec_t prec_sh=sh;
+                if(is_shr)result.prec+=prec_sh;
+                else result.prec-=prec_sh;
+                result.normalize();
+            }
+            return;
+        }
+
+        mp_uint nsh=sh;
+        if(sh<0){
+            is_shr=!is_shr;
+            nsh=-nsh;
+        }
+
+        int nsign=Num.sign();
+        mp_int nsize=Num.size();
+        mp_int nbits=(nsize-Num.dotp)*MP_LIMB_BITS-count_left_zeros(Num.data[nsize-1]);
+        mp_int shl=is_shr?-(mp_int)nsh:(mp_int)nsh;
+        mp_int rbits=nbits+shl;
+        int overflow=0;
+        if(nsh>=MP_MAX_INT/2)overflow=is_shr?-1:1;
+        else{
+            mp_int max_bits=MAX_EXP_BITS;
+            if(rbits>max_bits)overflow=1;
+            if(rbits<=-max_bits)overflow=-1;
+        }
+
+        if(overflow){
+            if(overflow<0)result=0;
+            else {
+                result.clear();
+                result.ssize=nsign;
+            }
+            return;
+        }
+
+        mp_prec_t rprec=Num.prec;
+        bool intn=rprec==INT_PREC;
+        if(intn&&is_shr)rprec=MIN_PREC_BITS+Num.logbit();
+
+        mp_ptr pr=result.data;
+        mp_srcptr pn=Num.data;
+        int shb=shl&MP_LIMB_BITS-1;
+        mp_int shw=(shl-shb)/MP_LIMB_BITS,rdotp=Num.dotp-shw;
+        mp_int rn=nsize,newsize=0;
+        bool use_shr=false;
+
+        if(shb){
+            use_shr=!intn&&precision_limbs(rprec)<nsize;
+            rn+=!use_shr;
+        }
+
+        mp_int rcapa=result.capacity();
+        if(rcapa<rn||rcapa>reserve_limbs_upper(rn)){
+            newsize=reserve_limbs_lower(rn);
+            pr=new mp_limb_t[newsize];
+        }
+
+        if(!shb){
+            if(pr!=pn)memcpy(pr,pn,nsize*sizeof(mp_limb_t));
+        }
+        else{
+            if(use_shr){
+                ilmp_shr_(pr,pn,nsize,MP_LIMB_BITS-shb);
+                --rdotp;
+            }
+            else pr[nsize]=ilmp_shl_(pr,pn,nsize,shb);
+            if(!pr[rn-1])--rn;
+        }
+
+        if(result.data!=pr){
+            result.clear();
+            result.data=pr;
+            result.alloc_size=newsize;
+        }
+
+        result.ssize=rn*nsign;
+        result.dotp=rdotp;
+        result.prec=rprec;
+        if(intn)result.try_fix();
+    }
+    Number operator<<(const Number &x,mp_int n){
+        Number result;
+        shift(result,x,n,false);
+        return result;
+    }
+    Number operator>>(const Number &x,mp_int n){
+        Number result;
+        shift(result,x,n,true);
+        return result;
+    }
+    Number &Number::operator<<=(mp_int n){
+        shift(*this,*this,n,false);
+        return *this;
+    }
+    Number &Number::operator>>=(mp_int n){
+        shift(*this,*this,n, true);
+        return *this;
+    }
+
+    Number fix(const Number &x,int fix_type){
+        Number result;
+        if(!x.is_num()||!x.ssize||x.dotp<=0||x.is_int()){
+            result=x;
+            result.prec=INT_PREC;
+        }
+        else{
+            int signx=x.sign();
+            mp_int sizex=x.size(),dotpx=x.dotp;
+            mp_limb_t carry=0;
+
+            if(fix_type==signx||fix_type>1){
+                //carry=zeroq{frac}
+                for(mp_int i=std::min(sizex,dotpx)-1;i>=0;--i)if(x.data[i]){
+                    carry=1;
+                    break;
+                }
+            }
+            else if(fix_type==0&&dotpx<=sizex){//round
+                carry=x.data[dotpx-1]>>MP_LIMB_BITS-1;
+                //exact half should round to even
+                if(carry&&!(x.data[dotpx-1]<<1)&&(dotpx==sizex||!(x.data[dotpx]&1))){
+                    carry=0;
+                    for(mp_int i=dotpx-2;i>=0;--i)if(x.data[i]){
+                        carry=1;
+                        break;
+                    }
+                }
+            }
+
+            if(sizex<=dotpx){
+                result=signx*(int)carry;
+            }
+            else{
+                mp_int rn=sizex-dotpx+carry;
+
+                if(rn>2){
+                    result.alloc_size=reserve_limbs_lower(rn);
+                    result.data=new mp_limb_t[result.alloc_size];
+                }
+                else{
+                    result.data=result.value;
+                }
+
+                carry=ilmp_add_1_(result.data,x.data+dotpx,sizex-dotpx,carry);
+                if(carry)result.data[rn-1]=1;
+                else rn=sizex-dotpx;
+
+                result.ssize=rn*signx;
+                result.dotp=0;
+                result.prec=INT_PREC;
+            }
+        }
+        return result;
+    }
+    Number floor(const Number &x){ return fix(x,-1); }
+    Number round(const Number &x){ return fix(x,0); }
+    Number ceil(const Number &x){ return fix(x,1); }
 
     void Number::from_float(const void *fptr,mp_int type_bytes,mp_int exp_bits,mp_int hidden_bit){
         clear();

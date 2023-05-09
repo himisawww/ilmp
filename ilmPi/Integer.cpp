@@ -530,4 +530,93 @@ do{                                                  \
         sub(*this,*this,Num);
         return *this;
     }
+
+    void shift(Integer &result,const Integer &Num,mp_int sh,bool is_shr){
+        if(!Num.ssize){
+            result=0;
+            return;
+        }
+
+        mp_uint nsh=sh;
+        if(sh<0){
+            is_shr=!is_shr;
+            nsh=-nsh;
+        }
+
+        int nsign=Num.sign();
+        mp_int nsize=Num.size();
+        mp_int nbits=nsize*MP_LIMB_BITS;
+        if(is_shr&&nsh>nbits)nsh=nbits;
+
+        mp_ptr pr=result.data;
+        mp_srcptr pn=Num.data;
+        int shb=nsh&MP_LIMB_BITS-1;
+        mp_int shw=(nsh-shb)/MP_LIMB_BITS;
+        mp_int rn=nsize,newsize=0;
+        mp_limb_t carry=0;
+
+        if(is_shr){
+            rn-=shw;
+            carry=(nsign<0);
+        }
+        else{
+            rn+=shw+(shb!=0);
+        }
+
+        mp_int rcapa=result.capacity();
+        if(rcapa<rn+carry||rcapa>reserve_limbs_upper(rn+carry)){
+            newsize=reserve_limbs_lower(rn+carry);
+            pr=new mp_limb_t[newsize];
+        }
+
+        if(is_shr){
+            mp_limb_t non_zero=0;
+            if(carry){
+                for(mp_int i=0;i<shw;++i)if(pn[i]){
+                    non_zero=carry;
+                    break;
+                }
+            }
+            if(rn>0){
+                if(shb)non_zero|=ilmp_shr_(pr,pn+shw,rn,shb);
+                else memcpy(pr,pn+shw,rn*sizeof(mp_limb_t));
+            }
+            carry=non_zero&&carry;
+        }
+        else{
+            if(shb)pr[shw+nsize]=ilmp_shl_(pr+shw,pn,nsize,shb);
+            else memcpy(pr+shw,pn,nsize*sizeof(mp_limb_t));
+            memset(pr,0,shw*sizeof(mp_limb_t));
+        }
+
+        if(shb&&!pr[rn-1])--rn;
+
+        if(carry&&(pr[rn]=!rn||ilmp_add_1_(pr,pr,rn,1)))++rn;
+
+        if(result.data!=pr){
+            result.clear();
+            result.data=pr;
+            result.alloc_size=newsize;
+        }
+
+        result.ssize=rn*nsign;
+    }
+    Integer operator<<(const Integer &x,mp_int n){
+        Integer result;
+        shift(result,x,n,false);
+        return result;
+    }
+    Integer operator>>(const Integer &x,mp_int n){
+        Integer result;
+        shift(result,x,n,true);
+        return result;
+    }
+    Integer &Integer::operator<<=(mp_int n){
+        shift(*this,*this,n,false);
+        return *this;
+    }
+    Integer &Integer::operator>>=(mp_int n){
+        shift(*this,*this,n,true);
+        return *this;
+    }
 };

@@ -180,6 +180,9 @@ namespace ilmp{
         Integer &operator-=(const Integer&);
         Integer &operator*=(const Integer&);
         Integer &operator/=(const Integer&);
+
+        Integer &operator<<=(mp_int);
+        Integer &operator>>=(mp_int);
     };
 
     //1:>, 0:=, -1:<, *Note: -2:nan
@@ -202,7 +205,10 @@ namespace ilmp{
     void sub(Integer&,const Integer&,const Integer&);
     void mul(Integer&,const Integer&,const Integer&);
     void div(Integer&,const Integer&,const Integer&);
-    
+
+    Integer operator<<(const Integer&,mp_int);
+    Integer operator>>(const Integer&,mp_int);
+
 /*
    Special values:
          NaN = {null, 0,...}
@@ -351,6 +357,9 @@ Note:
         Number &operator-=(const Number&);
         Number &operator*=(const Number&);
         Number &operator/=(const Number&);
+
+        Number &operator<<=(mp_int);
+        Number &operator>>=(mp_int);
     };
 
     //1:>, 0:=, -1:<, *Note: -2:nan
@@ -368,6 +377,16 @@ Note:
     Number operator-(const Number&,const Number&);
     Number operator*(const Number&,const Number&);
     Number operator/(const Number&,const Number&);
+    
+    Number operator<<(const Number &,mp_int);
+    Number operator>>(const Number &,mp_int);
+
+    //fix this to an integer
+    //fix type: -2: to zero, -1: to -inf, 0: to int, 1: to +inf, 2: to +/- inf
+    Number fix(const Number &x,int fix_type=-2);
+    Number floor(const Number &x);
+    Number ceil(const Number &x);
+    Number round(const Number &x);
 
     Number sqrt(const Number&);
     Number pow(const Number&,mp_int);
