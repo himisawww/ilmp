@@ -350,7 +350,7 @@ do{                                                  \
         if(!Num1.ssize||!Num2.ssize){
             if(!Num2.ssize){
                 int zero=ilmp_cmp_(Num2.value,Num2.value,1);
-                zero/=zero;
+                result.value[0]=1/zero;
             }
             result.clear();
             return;
