@@ -153,13 +153,14 @@ void ilmp_inv_(mp_ptr dst,mp_srcptr numa,mp_size_t na,mp_size_t nf){
 	mp_ptr numa2=numa;
 	TEMP_DECL;
 	if(dst==numa||nsh||nf){
+		nf+=nsh!=0;
 		numa2=TALLOC_TYPE(na+nf,mp_limb_t);
 		ilmp_zero(numa2,nf);
 		if(nsh)ilmp_shl_(numa2+nf,numa,na,nsh);
 		else ilmp_copy(numa2+nf,numa,na);
 	}
 	ilmp_invappr_(dst,numa2,na+nf);
-	dst[na+nf]=1;
-	if(nsh)ilmp_shl_(dst,dst,na+nf+1,nsh);
+	if(nsh)ilmp_shr_c_(dst,dst,na+nf,LIMB_BITS-nsh,(mp_limb_t)1<<nsh);
+	else dst[na+nf]=1;
 	TEMP_FREE;
 }

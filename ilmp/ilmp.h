@@ -141,7 +141,7 @@ void ilmp_div_(mp_ptr dstq,mp_ptr dstr,mp_srcptr numa,mp_size_t na,mp_srcptr num
 //else [dsts,nf+na/2+1]=[floor|round](sqrt([numa,na]*B^(2*nf)))
 //need(na>0, numa[na-1]!=0, eqsep(dsts,numa), eqsep(dstr,numa))
 void ilmp_sqrt_(mp_ptr dsts,mp_ptr dstr,mp_srcptr numa,mp_size_t na,mp_size_t nf);
-//[dst,na+nf+1]=(B^(2*(na+nf))-1)/([numa,na]*B^nf)+[0|-1]*2^leading_zeros(numa[na-1])
+//[dst,na+nf+1]=(B^(2*(na+nf))-1)/([numa,na]*B^nf)+[0|-1]
 //need(na>0, numa[na-1]!=0, eqsep(dst, numa))
 void ilmp_inv_(mp_ptr dst,mp_srcptr numa,mp_size_t na,mp_size_t nf);
 
