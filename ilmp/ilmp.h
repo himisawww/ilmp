@@ -20,7 +20,7 @@
 **************************************/
 
 #include<stdint.h>
-
+#include<stddef.h>
 struct ilmp_compile_time_error_{
 	char error_sizeof_pointer_should_be_8[sizeof(void *)==8?1:-1];
 };

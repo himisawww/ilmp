@@ -59,35 +59,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <None Include="aorsmul_1" />
-    <None Include="aorsshl1_n" />
-    <None Include="aors_n_c" />
-    <None Include="div_1" />
-    <None Include="div_2" />
     <None Include="ilmp.def" />
-    <None Include="shr1aors_n_c" />
-  </ItemGroup>
-  <ItemGroup>
-    <MASM Include="addmul_1.asm" />
-    <MASM Include="addshl1_n.asm" />
-    <MASM Include="add_n_c.asm" />
-    <MASM Include="mul_1.asm" />
-    <MASM Include="tiny.asm" />
-    <MASM Include="div_1.asm" />
-    <MASM Include="div_2.asm" />
-    <MASM Include="div_3_2.asm" />
-    <MASM Include="inv_1.asm" />
-    <MASM Include="mul_basecase.asm" />
-    <MASM Include="not.asm" />
-    <MASM Include="shl.asm" />
-    <MASM Include="shlnot.asm" />
-    <MASM Include="shr.asm" />
-    <MASM Include="shr1add_n_c.asm" />
-    <MASM Include="shr1sub_n_c.asm" />
-    <MASM Include="sqr_basecase.asm" />
-    <MASM Include="submul_1.asm" />
-    <MASM Include="subshl1_n.asm" />
-    <MASM Include="sub_n_c.asm" />
+    <None Include="masm\aorsmul_1" />
+    <None Include="masm\aorsshl1_n" />
+    <None Include="masm\aors_n_c" />
+    <None Include="masm\div_1" />
+    <None Include="masm\div_2" />
+    <None Include="masm\shr1aors_n_c" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="add_n_sub_n.c" />
@@ -114,6 +92,28 @@
   <ItemGroup>
     <ClInclude Include="ilmp.h" />
     <ClInclude Include="ilmpn.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="masm\addmul_1.asm" />
+    <MASM Include="masm\addshl1_n.asm" />
+    <MASM Include="masm\add_n_c.asm" />
+    <MASM Include="masm\div_1.asm" />
+    <MASM Include="masm\div_2.asm" />
+    <MASM Include="masm\div_3_2.asm" />
+    <MASM Include="masm\inv_1.asm" />
+    <MASM Include="masm\mul_1.asm" />
+    <MASM Include="masm\mul_basecase.asm" />
+    <MASM Include="masm\not.asm" />
+    <MASM Include="masm\shl.asm" />
+    <MASM Include="masm\shlnot.asm" />
+    <MASM Include="masm\shr.asm" />
+    <MASM Include="masm\shr1add_n_c.asm" />
+    <MASM Include="masm\shr1sub_n_c.asm" />
+    <MASM Include="masm\sqr_basecase.asm" />
+    <MASM Include="masm\submul_1.asm" />
+    <MASM Include="masm\subshl1_n.asm" />
+    <MASM Include="masm\sub_n_c.asm" />
+    <MASM Include="masm\tiny.asm" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -41,7 +41,7 @@
     <ClInclude Include="Number.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="CalcTime.h">
+    <ClInclude Include="calctime.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

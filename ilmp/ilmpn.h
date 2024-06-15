@@ -47,7 +47,7 @@
 
 
 
-#define INLINE __inline
+#define INLINE inline
 #define L1_CACHE_SIZE 8192
 
 #define LIMB_BITS        64
@@ -55,6 +55,10 @@
 #define LOG2_LIMB_BITS    6
 #define LIMB_MAX   (~(mp_limb_t)0)
 #define PART_SIZE (L1_CACHE_SIZE/LIMB_BYTES/4)
+
+#ifdef __cplusplus
+extern "C"{
+#endif
 
 //minimum natural number k s.t. 2^k>x
 int ilmp_limb_bits_(mp_limb_t x);
@@ -135,6 +139,10 @@ mp_limb_t ilmp_div_2_s_(mp_ptr dstq,mp_ptr numa,mp_size_t na,mp_srcptr numb);
 //qh:[dstq,na-nb]=[numa,na] div [numb,nb], [numa,nb]=[numa,na] mod [numb,nb], return qh
 //need(na>=nb>0, MSB(numb)=1, sep(dstq,numa,numb))
 mp_limb_t ilmp_div_s_(mp_ptr dstq,mp_ptr numa,mp_size_t na,mp_srcptr numb,mp_size_t nb);
+
+#ifdef __cplusplus
+}//extern "C"
+#endif
 
 typedef struct ilmp_mp_base_t_{
 	//the largest power of base fits in a limb

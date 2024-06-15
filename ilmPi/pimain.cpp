@@ -1,6 +1,6 @@
 #include<iostream>
 #include"Number.h"
-#include"CalcTime.h"
+#include"calctime.h"
 
 const char *const_names[]={"pi", "e", "ln2", "prime_buenosaires"};
 ilmp::Number (*const const_funcs[])(ilmp::mp_prec_t)={

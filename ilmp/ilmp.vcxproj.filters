@@ -13,91 +13,32 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="masm">
+      <UniqueIdentifier>{558bc62f-3d0a-4721-9148-fdb471889344}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ilmp.def">
       <Filter>源文件</Filter>
     </None>
-    <None Include="aors_n_c">
-      <Filter>源文件</Filter>
+    <None Include="masm\aors_n_c">
+      <Filter>masm</Filter>
     </None>
-    <None Include="aorsshl1_n">
-      <Filter>源文件</Filter>
+    <None Include="masm\aorsmul_1">
+      <Filter>masm</Filter>
     </None>
-    <None Include="shr1aors_n_c">
-      <Filter>源文件</Filter>
+    <None Include="masm\aorsshl1_n">
+      <Filter>masm</Filter>
     </None>
-    <None Include="div_1">
-      <Filter>源文件</Filter>
+    <None Include="masm\div_1">
+      <Filter>masm</Filter>
     </None>
-    <None Include="div_2">
-      <Filter>源文件</Filter>
+    <None Include="masm\div_2">
+      <Filter>masm</Filter>
     </None>
-    <None Include="aorsmul_1">
-      <Filter>源文件</Filter>
+    <None Include="masm\shr1aors_n_c">
+      <Filter>masm</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <MASM Include="add_n_c.asm">
-      <Filter>源文件</Filter>
-    </MASM>
-    <MASM Include="addshl1_n.asm">
-      <Filter>源文件</Filter>
-    </MASM>
-    <MASM Include="mul_basecase.asm">
-      <Filter>源文件</Filter>
-    </MASM>
-    <MASM Include="not.asm">
-      <Filter>源文件</Filter>
-    </MASM>
-    <MASM Include="shl.asm">
-      <Filter>源文件</Filter>
-    </MASM>
-    <MASM Include="shlnot.asm">
-      <Filter>源文件</Filter>
-    </MASM>
-    <MASM Include="shr.asm">
-      <Filter>源文件</Filter>
-    </MASM>
-    <MASM Include="shr1add_n_c.asm">
-      <Filter>源文件</Filter>
-    </MASM>
-    <MASM Include="shr1sub_n_c.asm">
-      <Filter>源文件</Filter>
-    </MASM>
-    <MASM Include="sqr_basecase.asm">
-      <Filter>源文件</Filter>
-    </MASM>
-    <MASM Include="sub_n_c.asm">
-      <Filter>源文件</Filter>
-    </MASM>
-    <MASM Include="subshl1_n.asm">
-      <Filter>源文件</Filter>
-    </MASM>
-    <MASM Include="div_1.asm">
-      <Filter>源文件</Filter>
-    </MASM>
-    <MASM Include="inv_1.asm">
-      <Filter>源文件</Filter>
-    </MASM>
-    <MASM Include="div_2.asm">
-      <Filter>源文件</Filter>
-    </MASM>
-    <MASM Include="addmul_1.asm">
-      <Filter>源文件</Filter>
-    </MASM>
-    <MASM Include="submul_1.asm">
-      <Filter>源文件</Filter>
-    </MASM>
-    <MASM Include="div_3_2.asm">
-      <Filter>源文件</Filter>
-    </MASM>
-    <MASM Include="tiny.asm">
-      <Filter>源文件</Filter>
-    </MASM>
-    <MASM Include="mul_1.asm">
-      <Filter>源文件</Filter>
-    </MASM>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="add_n_sub_n.c">
@@ -168,5 +109,67 @@
     <ClInclude Include="ilmp.h">
       <Filter>头文件</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="masm\add_n_c.asm">
+      <Filter>masm</Filter>
+    </MASM>
+    <MASM Include="masm\addmul_1.asm">
+      <Filter>masm</Filter>
+    </MASM>
+    <MASM Include="masm\addshl1_n.asm">
+      <Filter>masm</Filter>
+    </MASM>
+    <MASM Include="masm\div_1.asm">
+      <Filter>masm</Filter>
+    </MASM>
+    <MASM Include="masm\div_2.asm">
+      <Filter>masm</Filter>
+    </MASM>
+    <MASM Include="masm\div_3_2.asm">
+      <Filter>masm</Filter>
+    </MASM>
+    <MASM Include="masm\inv_1.asm">
+      <Filter>masm</Filter>
+    </MASM>
+    <MASM Include="masm\mul_1.asm">
+      <Filter>masm</Filter>
+    </MASM>
+    <MASM Include="masm\mul_basecase.asm">
+      <Filter>masm</Filter>
+    </MASM>
+    <MASM Include="masm\not.asm">
+      <Filter>masm</Filter>
+    </MASM>
+    <MASM Include="masm\shl.asm">
+      <Filter>masm</Filter>
+    </MASM>
+    <MASM Include="masm\shlnot.asm">
+      <Filter>masm</Filter>
+    </MASM>
+    <MASM Include="masm\shr.asm">
+      <Filter>masm</Filter>
+    </MASM>
+    <MASM Include="masm\shr1add_n_c.asm">
+      <Filter>masm</Filter>
+    </MASM>
+    <MASM Include="masm\shr1sub_n_c.asm">
+      <Filter>masm</Filter>
+    </MASM>
+    <MASM Include="masm\sqr_basecase.asm">
+      <Filter>masm</Filter>
+    </MASM>
+    <MASM Include="masm\sub_n_c.asm">
+      <Filter>masm</Filter>
+    </MASM>
+    <MASM Include="masm\submul_1.asm">
+      <Filter>masm</Filter>
+    </MASM>
+    <MASM Include="masm\subshl1_n.asm">
+      <Filter>masm</Filter>
+    </MASM>
+    <MASM Include="masm\tiny.asm">
+      <Filter>masm</Filter>
+    </MASM>
   </ItemGroup>
 </Project>

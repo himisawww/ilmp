@@ -424,7 +424,7 @@ do{                                                  \
         }
     }
 #else
-#define DEBUG_PRINT(x,y) if(0)
+#define DEBUG_PRINT(...) if(0)
 #endif
 
     Number operator-(const Number &Num){

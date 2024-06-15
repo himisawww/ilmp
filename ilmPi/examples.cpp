@@ -1,7 +1,7 @@
 #include<iostream>
 #include<string>
 #include"Number.h"
-#include"CalcTime.h"
+#include"calctime.h"
 
 using ilmp::Number;
 using ilmp::Integer;

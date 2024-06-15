@@ -1,8 +1,6 @@
-#include"CalcTime.h"
+#include"calctime.h"
+#include<chrono>
 
-#include<windows.h>
 double CalcTime(){
-	static LARGE_INTEGER time_li;
-	static double time_w=(QueryPerformanceFrequency(&time_li),(double)time_li.QuadPart);
-	return (QueryPerformanceCounter(&time_li),(double)time_li.QuadPart/time_w);
+    return std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::steady_clock::now().time_since_epoch()).count();
 }
