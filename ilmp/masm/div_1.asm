@@ -1,3 +1,4 @@
+include <asm_windows>
 EXTERN ilmp_inv_1_:near
 
 .code
@@ -12,18 +13,19 @@ include <div_1>
 
 	ALIGN 16
 ilmp_div_1_s_ proc
-	push rdi
-	push rsi
 	push rbp
 	push rbx
+win	push rdi
+win	push rsi
 
-	mov rbx,r8
-	mov rdi,rcx
-	mov rsi,rdx
-	mov rbp,r9
-
-	mov rcx,r9
+	mov rbx,rx2
+win	mov rdi,rcx
+win	mov rsi,rdx
+lin	mov r10,rdi
+	mov rbp,rx3
+	mov rx0,rx3
 	call ilmp_inv_1_
+lin	mov rdi,r10
 	mov r8,rbp
 	mov r9,rax
 
@@ -60,10 +62,10 @@ lab_ok:
 	mov [rsi],rax
 	mov rax,rcx
 
+win	pop rsi
+win	pop rdi
 	pop rbx
 	pop rbp
-	pop rsi
-	pop rdi
 	ret
 
 lab_fx:

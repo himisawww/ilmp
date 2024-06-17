@@ -1,9 +1,13 @@
+include <asm_windows>
 
 .code
 	ALIGN 16
 ilmp_shlnot_ proc
 	xor rax,rax
-	xchg rcx,r9
+lin	mov r8,rdx
+lin	mov r9,rdi
+lin	mov rdx,rsi
+win	xchg rcx,r9
 	and cl,63
 	push r12
 	push r13

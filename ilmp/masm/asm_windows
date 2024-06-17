@@ -1,0 +1,21 @@
+win TEXTEQU <>
+lin TEXTEQU <;>
+rx0 TEXTEQU <rcx>
+rx1 TEXTEQU <rdx>
+rx2 TEXTEQU <r8>
+rx3 TEXTEQU <r9>
+ex0 TEXTEQU <ecx>
+ex1 TEXTEQU <edx>
+ex2 TEXTEQU <r8d>
+ex3 TEXTEQU <r9d>
+wx0 TEXTEQU <cx>
+wx1 TEXTEQU <dx>
+wx2 TEXTEQU <r8w>
+wx3 TEXTEQU <r9w>
+bx0 TEXTEQU <cl>
+bx1 TEXTEQU <dl>
+bx2 TEXTEQU <r8b>
+bx3 TEXTEQU <r9b>
+
+rs12 TEXTEQU <r12>
+rc13 TEXTEQU <r13>

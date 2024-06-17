@@ -39,6 +39,12 @@
     <None Include="masm\shr1aors_n_c">
       <Filter>masm</Filter>
     </None>
+    <None Include="masm\asm_linux">
+      <Filter>masm</Filter>
+    </None>
+    <None Include="masm\asm_windows">
+      <Filter>masm</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="add_n_sub_n.c">

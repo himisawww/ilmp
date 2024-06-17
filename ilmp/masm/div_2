@@ -1,22 +1,22 @@
 
 	ALIGN 16
 func_2 proc
-ifq test rcx,rcx
+ifq test rx0,rx0
 ifq	jz ilmp_div_nq_2_
-ifq	push rdi
-	push rsi
+win	ifq	push rdi
+win		push rsi
 	push rbp
 	push rbx
 	push r12
 	push r13
 	push r14
 
-	push r9
-	lea rbx,[r8-1]
-ifq	mov rdi,rcx
-	mov rsi,rdx
-	mov r8,[r9]
-	mov r9,[r9+8]
+	push rx3
+	lea rbx,[rx2-1]
+win	ifq	mov rdi,rcx
+win		mov rsi,rdx
+	mov r8,[rx3]
+	mov r9,[rx3+8]
 
 	mov r11,[rsi+rbx*8-8]
 	mov r12,[rsi+rbx*8]
@@ -42,10 +42,12 @@ lab_2:
 	shl r8,cl
 
 	push rcx
+lin	ifq	mov r10,rdi
 	push r8
 	push r9
-	mov rcx,r9
+	mov rx0,r9
 	call ilmp_inv_1_
+lin	ifq	mov rdi,r10
 	pop r9
 	pop r8
 	mov rbp,rax
@@ -129,17 +131,17 @@ lab_ret:
 	shrd r12,r13,cl
 	shr r13,cl
 lab_retnsh:
-	pop r9
-	mov [r9],r12
-	mov [r9+8],r13
+	pop rx3
+	mov [rx3],r12
+	mov [rx3+8],r13
 	
 	pop r14
 	pop r13
 	pop r12
 	pop rbx
 	pop rbp
-	pop rsi
-ifq	pop rdi
+win		pop rsi
+win	ifq	pop rdi
 	ret
 
 func_2 endp

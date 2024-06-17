@@ -2,7 +2,8 @@
 .code
 	ALIGN 16
 func_nc proc
-	mov r10,[rsp+40]
+win	mov r10,[rsp+40]
+lin mov r10,r8
 	jmp lab_ent
 func_nc endp
 
@@ -11,12 +12,12 @@ func_n proc
 	xor r10,r10
 
 lab_ent::
-	push rsi
-	push rdi
-	mov rsi,rdx
-	mov rdi,rcx
-	mov rdx,r8
-	mov rcx,r9
+win	push rsi
+win	push rdi
+win	mov rsi,rdx
+win	mov rdi,rcx
+win	mov rdx,r8
+win	mov rcx,r9
 
 	mov rax,rcx
 	shr rcx,2
@@ -63,8 +64,8 @@ lab_e2:
 	mov [rdi+8],r11
 	setc al
 
-	pop rdi
-	pop rsi
+win	pop rdi
+win	pop rsi
 	ret
 
 lab_bx1:
@@ -89,8 +90,8 @@ lab_e1:
 	mov [rdi],r11
 	setc al
 
-	pop rdi
-	pop rsi
+win	pop rdi
+win	pop rsi
 	ret
 
 lab_b11:
@@ -137,8 +138,8 @@ lab_end:
 	mov [rdi+8],r11
 	setc al
 	
-	pop rdi
-	pop rsi
+win	pop rdi
+win	pop rsi
 	ret
 func_n endp
 

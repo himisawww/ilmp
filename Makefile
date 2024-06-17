@@ -2,7 +2,9 @@ BUILD_DIR := build
 SHARED_LIBRARY := $(BUILD_DIR)/libilmp.so
 TARGET := $(BUILD_DIR)/ilmPi
 
-CFLAGS := -Ofast -fwrapv -fno-strict-aliasing -fkeep-inline-functions
+ASMFLAGS := -w+all
+CFLAGS   := -O2 -fwrapv -fno-strict-aliasing -fkeep-inline-functions
+CPPFLAGS := -O2 -fwrapv -fno-strict-aliasing
 
 #================  CPP  ================
 
@@ -11,7 +13,7 @@ CPP_SOURCES := $(wildcard $(CPP_SRCDIR)/*.cpp)
 
 .SECONDARY:
 $(TARGET): $(SHARED_LIBRARY) $(CPP_SOURCES)
-	g++ $(CFLAGS) $(CPP_SOURCES) -L $(BUILD_DIR)/ -lilmp -o $@
+	g++ $(CPPFLAGS) $(CPP_SOURCES) -L $(BUILD_DIR)/ -lilmp -o $@
 
 #===============  BUILD  ===============
 
@@ -40,20 +42,32 @@ ASM_LIBRARY  := $(BUILD_DIR)/ilmp_asm.o
 
 # patch masm to nasm
 $(BUILD_DIR)/%: $(MASM_SRCDIR)/% | $(BUILD_DIR)
-	@cat $< \
-	| sed 's/^\.code/default rel\r\nsection .text/g'\
-	| sed 's/^end//g' | sed -E 's/^([_a-zA-Z][_a-zA-Z0-9]*) proc/\1:/g'\
-	| sed -E 's/^([_a-zA-Z][_a-zA-Z0-9]*) endp/global \1/g'\
-	| sed -E 's/^(.+) TEXTEQU +<([^>]*)>/%define \1 \2/g'\
-	| sed -E 's/^include *<([^>]+)>/%include"\1"/g'\
-	| sed -E 's/(lab_[_a-zA-Z0-9]+)/.\1/g'\
-	| sed -E 's/ ptr */ /g'\
-	| sed -E 's/:near//g'\
-	> $@
-	@grep '.lab_ent::' $@ | if [ ! -z $$(cat) ]; then sed -i -E 's/\.lab_ent:?/lab_ent/g' $@; fi
+	@cat $< | sed -E\
+	 -e 's/\r//g'\
+	 -e 's/\t/ /g'\
+	 -e 's/.+ TEXTEQU *<;>.*//g'\
+	 -e 's/^win.*//g'\
+	 -e 's/asm_windows/asm_linux/g'\
+	 -e 's/^\.code/default rel\nsection .text/g'\
+	 -e 's/^end//g'\
+	 -e 's/^([_a-zA-Z][_a-zA-Z0-9]*) proc/\1:/g'\
+	 -e 's/^([_a-zA-Z][_a-zA-Z0-9]*) endp/global \1/g'\
+	 -e 's/^(.+) TEXTEQU *<([^>]*)>/%define \1 \2/g'\
+	 -e 's/^include *<([^>]+)>/%include"\1"/g'\
+	 -e 's/(lab_[_a-zA-Z0-9]+)/.\1/g'\
+	 -e 's/ ptr */ /g'\
+	 -e 's/:near//g'\
+	 | awk 1 ORS='\t'\
+	 | sed -E -e 's/^(.*)%define +ifq +\t%include"([^"]+)"(.*)$$/\1%include"\2_ifq"\3/g'\
+	 -e 's/\t/\n/g' > $@
+	@grep '.lab_ent::' $@ | if [ ! -z "$$(cat)" ]; then sed -i -E 's/\.lab_ent:?/lab_ent/g' $@; fi
 
 $(BUILD_DIR)/%.asm.o: $(BUILD_DIR)/%.asm $(NASM_SOURCES)
-	nasm -f elf64 -i $(BUILD_DIR) $< -o $@
+	@cat $< | sed -n -E 's/%include"([^"]+)_ifq"/\1/p' | tee $@ | if [ ! -z "$$(cat)" ]; then\
+	 sed 's/ifq//g' $(BUILD_DIR)/$$(cat $@) > $(BUILD_DIR)/$$(cat $@)_ifq ;\
+	 sed -i 's/ifq/;/g' $(BUILD_DIR)/$$(cat $@);\
+	 fi
+	nasm -f elf64 -i $(BUILD_DIR) $(ASMFLAGS) $< -o $@
 
 $(SHARED_LIBRARY): $(NASM_OBJECTS) $(C_OBJECTS)
 	ld -no-pie -static -e 0 -o $(ASM_LIBRARY) $(NASM_OBJECTS)

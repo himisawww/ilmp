@@ -1,17 +1,18 @@
+include <asm_windows>
 
 .code
 	ALIGN 16
 ilmp_mul_basecase_ proc
-	push rsi
-	push rdi
+win	push rsi
+win	push rdi
 	push rbx
 	push rbp
 
-	mov rdi,rcx
-	mov rsi,rdx
-	mov rdx,r8
-	mov rcx,r9
-	mov r8,[rsp+48h]
+win	mov rdi,rcx
+win	mov rsi,rdx
+win	mov rdx,r8
+win	mov rcx,r9
+win	mov r8,[rsp+48h]
 
 	mov rbx,rdx
 	neg rbx
@@ -61,8 +62,8 @@ lab_m101:
 	pop rbp
 	pop rbx
 
-	pop rdi
-	pop rsi
+win	pop rdi
+win	pop rsi
 	ret
 
 lab_m111:
@@ -354,8 +355,8 @@ lab_ret2:
 	pop rbp
 	pop rbx
 
-	pop rdi
-	pop rsi
+win	pop rdi
+win	pop rsi
 	ret
 ilmp_mul_basecase_ endp
 end

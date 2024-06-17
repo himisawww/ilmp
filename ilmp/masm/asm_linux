@@ -1,0 +1,21 @@
+win TEXTEQU <;> do not work on NASM...
+lin TEXTEQU <>
+rx0 TEXTEQU <rdi>
+rx1 TEXTEQU <rsi>
+rx2 TEXTEQU <rdx>
+rx3 TEXTEQU <rcx>
+ex0 TEXTEQU <edi>
+ex1 TEXTEQU <esi>
+ex2 TEXTEQU <edx>
+ex3 TEXTEQU <ecx>
+wx0 TEXTEQU <di>
+wx1 TEXTEQU <si>
+wx2 TEXTEQU <dx>
+wx3 TEXTEQU <cx>
+bx0 TEXTEQU <dil>
+bx1 TEXTEQU <sil>
+bx2 TEXTEQU <dl>
+bx3 TEXTEQU <cl>
+
+rs12 TEXTEQU <rsi>
+rc13 TEXTEQU <rcx>

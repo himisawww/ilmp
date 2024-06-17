@@ -2,16 +2,16 @@
 .code
 	ALIGN 16
 func_1 proc
-	push rsi
-	push rdi
+win	push rsi
+win	push rdi
 	push rbx
 
-	lea rsi,[rdx+r8*8]
-	lea rdi,[rcx+r8*8]
-
+	mov rax,[rx1]
 	mov rbx,1
-	mov rax,[rdx]
-	mov rcx,r9
+lin mov r8,rx2
+	lea rdi,[rx0+rx2*8]
+	lea rsi,[rx1+rx2*8]
+win	mov rcx,r9
 
 	test r8b,1
 	jnz lab_b13
@@ -114,8 +114,8 @@ lab_end:
 	mov rax,r11
 	
 	pop rbx
-	pop rdi
-	pop rsi
+win	pop rdi
+win	pop rsi
 	ret
 	
 	ALIGN 16
@@ -125,8 +125,8 @@ lab_1:
 	mov rax,rdx
 	adc rax,0
 	pop rbx
-	pop rdi
-	pop rsi
+win	pop rdi
+win	pop rsi
 	ret
 func_1 endp
 end

@@ -1,3 +1,4 @@
+include <asm_windows>
 .code
 	ALIGN 16
 ilmp_inv_1_table_:
@@ -21,8 +22,8 @@ ilmp_inv_1_table_:
 
 	ALIGN 16
 ilmp_inv_1_ proc
-	mov r9,rcx
-	mov rax,rcx
+	mov r9,rx0
+	mov rax,rx0
 	shr rax,55
 	lea rcx,[ilmp_inv_1_table_-512]
 	movzx rcx,word ptr[rcx+rax*2]
@@ -69,23 +70,28 @@ ilmp_inv_1_ endp
 
 	ALIGN 16
 ilmp_inv_2_1_ proc
-	mov r11,rdx
-	mov r10,rcx
+win	mov r11,rx1
+win	mov r10,rx0
 	call ilmp_inv_1_
 	mov r8,rax
-	mov r9,r10
+lin	mov r9,rx0
+win	mov r9,r10
 	imul r9,rax		;r9=bh*(inv-2^64) (mod 2^64) =bh*inv m64
 	xor rcx,rcx
-	mul r11			;rdx:rax=bl*(inv-2^64)
-	add r9,r11		;r9=bh*inv+bl m64
+lin	mul rx1
+lin	add r9,rx1
+win	mul r11			;rdx:rax=bl*(inv-2^64)
+win	add r9,r11		;r9=bh*inv+bl m64
 	adc rcx,-1		;rcx:r9=bh*inv+bl m128
 	add r9,rdx
 	adc rcx,0		;rcx:r9:rax=b*inv m192
 	js lab_2f
 lab_1b:
 	dec r8
-	sub rax,r11
-	sbb r9,r10
+lin	sub rax,rx1
+lin	sbb r9,rx0
+win	sub rax,r11
+win	sbb r9,r10
 	sbb rcx,0
 	jns lab_1b
 lab_2f:

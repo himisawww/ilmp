@@ -1,22 +1,23 @@
+include <asm_windows>
 
 .code
 	ALIGN 16
 ilmp_sqr_basecase_ proc
-	cmp r8,2
+	cmp rx2,2
 	jae lab_gt1
-	mov rax,[rdx]
+	mov rax,[rx1]
 	mul rax
-	mov [rcx],rax
-	mov [rcx+8],rdx
+	mov [rx0],rax
+	mov [rx0+8],rdx
 	ret
 
 lab_gt1:
 	jne lab_gt2
-	mov rax,[rdx]
-	mov r11,[rdx+8]
+	mov rax,[rx1]
+	mov r11,[rx1+8]
 	mov r8,rax
 	mul rax
-	mov [rcx],rax
+	mov [rx0],rax
 	mov rax,r11
 	mov r9,rdx
 	mul rax
@@ -29,20 +30,20 @@ lab_gt1:
 	adc r10,rdx
 	adc r11,r8
 	add r9,rax
-	mov [rcx+8],r9
+	mov [rx0+8],r9
 	adc r10,rdx
-	mov [rcx+16],r10
+	mov [rx0+16],r10
 	adc r11,r8
-	mov [rcx+24],r11
+	mov [rx0+24],r11
 	ret
 
 lab_gt2:
-	push rsi
-	push rdi
-	cmp r8,4
-	mov rsi,rdx
-	mov rdi,rcx
-	mov rdx,r8
+win	push rsi
+win	push rdi
+	cmp rx2,4
+win	mov rsi,rdx
+win	mov rdi,rcx
+win	mov rdx,r8
 	jae lab_gt3
 	mov rax,[rsi]
 	mov r10,rax
@@ -83,8 +84,8 @@ lab_gt2:
 	adc [rdi+24],r10
 	adc [rdi+32],rdx
 	adc [rdi+40],r11
-	pop rdi
-	pop rsi
+win	pop rdi
+win	pop rsi
 	ret
 
 lab_gt3:
@@ -380,8 +381,8 @@ lab_dend:
 	pop r12
 	pop rbp
 	pop rbx
-	pop rdi
-	pop rsi
+win	pop rdi
+win	pop rsi
 	ret
 ilmp_sqr_basecase_ endp
 end

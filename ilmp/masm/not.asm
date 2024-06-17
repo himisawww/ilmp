@@ -1,11 +1,13 @@
+include <asm_windows>
 
 .code
 	ALIGN 16
 ilmp_not_ proc
-	mov r10,[rdx]
-	mov rax,r8
-	lea rcx,[rcx+r8*8]
-	lea rdx,[rdx+r8*8]
+	mov r10,[rx1]
+	mov rax,rx2
+lin mov r8,rx2
+	lea rcx,[rx0+rx2*8]
+	lea rdx,[rx1+rx2*8]
 	neg r8
 	and al,3
 	je lab_b00

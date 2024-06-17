@@ -1,36 +1,38 @@
 
 	ALIGN 16
 func_1 proc
-ifq test rcx,rcx
+ifq test rx0,rx0
 ifq	jz ilmp_div_nq_1_
-ifq	push rdi
-	push rsi
+win	ifq	push rdi
+win		push rsi
 	push rbp
 	push rbx
 	push r12
 
-	mov rbx,r8
-ifq	mov rdi,rcx
-	mov rsi,rdx
-	mov r8,r9
+	mov rbx,rx2
+win	ifq	mov rdi,rcx
+win		mov rsi,rdx
+	mov r8,rx3
 
 	xor rax,rax
-	mov r10,[rsi+rbx*8-8]
 	bsr rcx,r8
 	not rcx
 	add rcx,64
 	shl r8,cl
 
+lin	ifq	mov r10,rdi
 	mov r11,rax
 	mov rbp,rcx
 	mov r12,r8
-	mov rcx,r8
+	mov rx0,r8
 	call ilmp_inv_1_
+lin	ifq	mov rdi,r10
 	mov r9,rax
 	mov r8,r12
 	mov rcx,rbp
 	mov rax,r11
 
+	mov r10,[rsi+rbx*8-8]
 	shld rax,r10,cl
 	jmp lab_ent
 
@@ -74,7 +76,7 @@ lab_ret:
 	pop r12
 	pop rbx
 	pop rbp
-	pop rsi
-ifq	pop rdi
+win		pop rsi
+win	ifq	pop rdi
 	ret
 func_1 endp

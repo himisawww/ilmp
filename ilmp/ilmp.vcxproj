@@ -63,6 +63,8 @@
     <None Include="masm\aorsmul_1" />
     <None Include="masm\aorsshl1_n" />
     <None Include="masm\aors_n_c" />
+    <None Include="masm\asm_linux" />
+    <None Include="masm\asm_windows" />
     <None Include="masm\div_1" />
     <None Include="masm\div_2" />
     <None Include="masm\shr1aors_n_c" />

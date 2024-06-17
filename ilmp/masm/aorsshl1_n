@@ -1,17 +1,21 @@
 .code
 	ALIGN 16
 func_n proc
-	push rsi
-	push rdi
+win	push rsi
+win	push rdi
+lin xchg rx1,rx2
 	push rbx
 	push r12
 	push r13
 	push r14
 	push r15
-	lea rsi,[r8+r9*8]
-	lea rdx,[rdx+r9*8]
-	lea rdi,[rcx+r9*8]
-	mov rcx,r9
+win	lea rsi,[rx2+rx3*8]
+win	lea rdx,[rx1+rx3*8]
+lin	lea rsi,[rx1+rx3*8]
+lin	lea rdx,[rx2+rx3*8]
+	lea rdi,[rx0+rx3*8]
+win	mov rcx,r9
+lin mov r9,rcx
 	xor rax,rax
 	xor rbx,rbx
 	and cl,-4
@@ -107,8 +111,8 @@ lab_ret:
 	pop r13
 	pop r12
 	pop rbx
-	pop rdi
-	pop rsi
+win	pop rdi
+win	pop rsi
 	ret
 func_n endp
 end
