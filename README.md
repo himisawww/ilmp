@@ -8,11 +8,17 @@ File structure:
 
 # Build
 
-- On Windows: Compilable in Visual Studio 2019.
+- On Windows:
 
+  Compilable in Visual Studio 2019.
+
+  You may need to manually copy `ilmp.dll` under `x64/Release` (built by `Release` mode) to `x64/Debug` (or system `%PATH%`) to run `Debug` mode.
+  
 - On Linux: `make`.
   
-  Pre-requisites `nasm` and `g++`. Tested with `nasm --version` 2.14.02 and `g++ --version` 10.2.0.
+  Pre-requisites `nasm` and `g++`. Tested with `nasm --version` 2.14.02, `g++ --version` 10.2.0, and `ld --version` 2.34.
+
+  **It is known that newer versions of `ld` (those after [this commit](https://sourceware.org/git/gitweb.cgi?p=binutils-gdb.git;h=a87e1817a435dab6c6c042f9306497c9f13d4236) about [this bug report](https://sourceware.org/bugzilla/show_bug.cgi?id=26047)) refuse to produce correct shared object for this project. I have no idea how to solve this (need help). For now, an old version of `ld` is required to build this project under Linux.**
 
 # Features & Introduction
 
