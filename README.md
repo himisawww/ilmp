@@ -12,14 +12,22 @@ File structure:
 
   Compilable in Visual Studio 2019.
 
-  You may need to manually copy `ilmp.dll` under `x64/Release` (built by `Release` mode) to `x64/Debug` (or system `%PATH%`) to run `Debug` mode.
+  To run `Debug` mode, copy `ilmp.dll` under `x64/Release` (built by `Release` mode) to `x64/Debug` (or system `%PATH%`).
   
 - On Linux: `make`.
   
   Pre-requisites `nasm` and `g++`. Tested with `nasm --version` 2.14.02, `g++ --version` 10.2.0, and `ld --version` 2.34.
 
+  `make` (or `make static`) will create a static linked executable `build/ilmPi`.
+
+  Use `make shared` to create the shared object `libilmp.so` and a dynamic linked executable `build/ilmPi`.
+
+  `sudo make install`/`sudo make uninstall` will install/uninstall the shared object to/from `/usr/lib/`. No need to do this for static linkage.
+
   **It is known that newer versions of `ld` (those after [this commit](https://sourceware.org/git/gitweb.cgi?p=binutils-gdb.git;h=a87e1817a435dab6c6c042f9306497c9f13d4236) about [this bug report](https://sourceware.org/bugzilla/show_bug.cgi?id=26047)) refuse to produce correct shared object for this project. I have no idea how to solve this (need help). For now, an old version of `ld` is required to build this project under Linux.**
 
+  **Besure to run `make clean` before redo `make`, otherwise core dumps (why? need help).**
+  
 # Features & Introduction
 
 - All computation are done in memory: for every 1 billion decimal digits of Pi, about 10 GiB physical memory is required.
@@ -85,6 +93,21 @@ Note:   To avoid confusion when i/o in radices larger than 10,
   -Overflow    = -#inf
   Underflow    = 0
 Indeterminate  = #nan
+
+Base conversion is supported for bases between 2 ~ 36.
+Pi =
+  base  2: 11.00100100001111110110101010001001
+  base  3: 10.01021101222201021101
+  base  5: 3.03232214303344
+  base  8: 3.11037552421
+  base 10: 3.1415926536
+  base 16: 3.243f6a89
+  base 27: 3.3m5q3m2
+  base 36: 3.53i5ab
+Note: The exponential part (*^) is also represented in target base:
+    8.25980633651*^1346471 (base 10) = a.bcdefgh*^ijkl (base 36)
+      ... as well as the precision part (`):
+    0.d000721`d            (base 16) = 0.d000721000000 (base 16)
 
 Some other examples:
  3 ^ 200 = 265613988875874769338781322035779626829233452653394495974574961739092490901302182994384699044001
