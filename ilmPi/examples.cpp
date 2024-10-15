@@ -6,33 +6,6 @@
 using ilmp::Number;
 using ilmp::Integer;
 
-std::istream &operator>>(std::istream &is,Number &val){
-    std::string str;
-    is>>str;
-    val.from_str(str.c_str());
-    return is;
-}
-std::ostream &operator<<(std::ostream &os,const Number &val){
-    std::string str(1+val.strlen(),0);
-    val.to_str((char*)str.data());
-    os<<str.data();
-    return os;
-}
-
-std::istream &operator>>(std::istream &is,Integer &val){
-    std::string str;
-    is>>str;
-    val.from_str(str.c_str());
-    return is;
-}
-std::ostream &operator<<(std::ostream &os,const Integer &val){
-    std::string str(1+val.strlen(),0);
-    val.to_str((char*)str.data());
-    os<<str.data();
-    return os;
-}
-
-//change this to main
 int main_example(){
     {
         //initialize by int
@@ -109,6 +82,32 @@ int main_example(){
         std::cout<<"  -Overflow    = "<<-overflow<<"\n";
         std::cout<<"  Underflow    = "<<underflow<<"\n";
         std::cout<<"Indeterminate  = "<<overflow/overflow<<"\n";
+    }
+
+    std::cout<<std::endl;
+
+    {
+        std::cout<<"Base conversion is supported for bases between 2 ~ 36.\n";
+        Number pi=ilmp::Pi(ilmp::convert_precision(ilmp::MIN_PREC_BITS,2));
+        std::cout<<"Pi = \n"
+            "  base  2: "<<pi.to_string(2)<<"\n"
+            "  base  3: "<<pi.to_string(3)<<"\n"
+            "  base  5: "<<pi.to_string(5)<<"\n"
+            "  base  8: "<<pi.to_string(8)<<"\n"
+            "  base 10: "<<pi.to_string(10)<<"\n"
+            "  base 16: "<<pi.to_string(16)<<"\n"
+            "  base 27: "<<pi.to_string(27)<<"\n"
+            "  base 36: "<<pi.to_string(36)<<"\n";
+
+        const char *base10_src="8.25980633651*^1346471";
+        std::cout<<"Note: The exponential part (*^) is also represented in target base:\n";
+        std::cout<<"    "<<base10_src<<" (base 10) = "
+            <<Number(base10_src,10).to_string(36)<<" (base 36)"<<"\n";
+
+        const char *base16_src="0.d000721`d";
+        std::cout<<"      ... as well as the precision part (`):\n";
+        std::cout<<"    "<<base16_src<<"            (base 16) = "
+            <<Number(base16_src,16).to_string(16)<<" (base 16)"<<"\n";
     }
 
     std::cout<<std::endl;

@@ -3,6 +3,8 @@
 #define ILMP_NO_TYPES
 #include"../ilmp/ilmp.h"
 #include<utility>
+#include<iosfwd>
+#include<string>
 #pragma comment(lib,"../x64/Release/ilmp.lib")
 
 namespace ilmp{
@@ -157,6 +159,8 @@ namespace ilmp{
         //convert this into a string in a given base
         //return strlen
         mp_int to_str(char*,int base=10) const;
+        //convert this into a string in a given base
+        std::string to_string(int base=10) const;
 
         //this=-this
         void neg();
@@ -184,6 +188,9 @@ namespace ilmp{
 
         Integer &operator<<=(mp_int);
         Integer &operator>>=(mp_int);
+
+        friend std::istream &operator>>(std::istream &is,Integer &val);
+        friend std::ostream &operator<<(std::ostream &os,const Integer &val);
     };
 
     //1:>, 0:=, -1:<, *Note: -2:nan
@@ -319,6 +326,8 @@ Note:
         //convert this into a string in a given base
         //return strlen
         mp_int to_str(char*,int base=10) const;
+        //convert this into a string in a given base
+        std::string to_string(int base=10) const;
 
         //this=-this
         void neg();
@@ -361,6 +370,9 @@ Note:
 
         Number &operator<<=(mp_int);
         Number &operator>>=(mp_int);
+
+        friend std::istream &operator>>(std::istream &is,Number &val);
+        friend std::ostream &operator<<(std::ostream &os,const Number &val);
     };
 
     //1:>, 0:=, -1:<, *Note: -2:nan

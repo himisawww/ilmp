@@ -3,6 +3,7 @@
 #include<cstring>
 #include<cmath>
 #include<algorithm>
+#include<iostream>
 
 //#define DEBUG_LOG
 //#include<vector>
@@ -1654,5 +1655,21 @@ do{                                                  \
         }
 
         return;
+    }
+
+    std::string Number::to_string(int base) const{
+        std::string str(1+strlen(base),0);
+        size_t slen=to_str((char*)str.data(),base);
+        str.resize(slen);
+        return str;
+    }
+    std::istream &operator>>(std::istream &is,Number &val){
+        std::string str;
+        is>>str;
+        val.from_str(str.c_str());
+        return is;
+    }
+    std::ostream &operator<<(std::ostream &os,const Number &val){
+        return os<<val.to_string();
     }
 };

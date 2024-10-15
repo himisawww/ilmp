@@ -3,7 +3,7 @@
 #include<cstring>
 #include<cmath>
 #include<algorithm>
-
+#include<iostream>
 
 namespace ilmp{
     using namespace ilmp::utils;
@@ -618,5 +618,22 @@ do{                                                  \
     Integer &Integer::operator>>=(mp_int n){
         shift(*this,*this,n,true);
         return *this;
+    }
+
+    //convert this into a string in a given base
+    std::string Integer::to_string(int base) const{
+        std::string str(1+strlen(base),0);
+        size_t slen=to_str((char*)str.data(),base);
+        str.resize(slen);
+        return str;
+    }
+    std::istream &operator>>(std::istream &is,Integer &val){
+        std::string str;
+        is>>str;
+        val.from_str(str.c_str());
+        return is;
+    }
+    std::ostream &operator<<(std::ostream &os,const Integer &val){
+        return os<<val.to_string();
     }
 };

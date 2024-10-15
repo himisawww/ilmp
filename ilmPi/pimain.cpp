@@ -10,7 +10,13 @@ ilmp::Number (*const const_funcs[])(ilmp::mp_prec_t)={
     ilmp::Prime_BuenosAires
 };
 
+//call this in main to show example outputs
+int main_example();
+
 int main(int argc,char **argv){
+#if 0
+    return main_example();
+#endif
     int base=10,option=0;
     ilmp::mp_int digits=0;
     if(argc<=1||argc>4){
