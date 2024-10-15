@@ -24,7 +24,7 @@ int main(int argc,char **argv){
         "Pi Calculator using ilmp\n"
         "command line usage:\n\n"
 
-        "    ilmpi.exe [digits] [[base]] [[option]]\n\n"
+        "    ilmPi.exe [digits] [[base]] [[option]]\n\n"
 
         "        digits:  should be a decimal integer\n"
         "          base:  optional, default to 10\n"

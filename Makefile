@@ -1,6 +1,9 @@
 BUILD_DIR := build
+STATIC_LIBRARY := $(BUILD_DIR)/libilmp.o
 SHARED_LIBRARY := $(BUILD_DIR)/libilmp.so
 TARGET := $(BUILD_DIR)/ilmPi
+INSTALL_DIR := /usr/lib
+INSTALL_PATH := $(INSTALL_DIR)/libilmp.so
 
 ASMFLAGS := -w+all
 CFLAGS   := -O2 -fwrapv -fno-strict-aliasing -fkeep-inline-functions
@@ -11,11 +14,18 @@ CPPFLAGS := -O2 -fwrapv -fno-strict-aliasing
 CPP_SRCDIR := ilmPi
 CPP_SOURCES := $(wildcard $(CPP_SRCDIR)/*.cpp)
 
-.SECONDARY:
-$(TARGET): $(SHARED_LIBRARY) $(CPP_SOURCES)
-	g++ $(CPPFLAGS) $(CPP_SOURCES) -L $(BUILD_DIR)/ -lilmp -o $@
-
 #===============  BUILD  ===============
+.SECONDARY:
+static: $(STATIC_LIBRARY) $(CPP_SOURCES)
+	g++ $(CPPFLAGS) $(CPP_SOURCES) $(STATIC_LIBRARY) -o $(TARGET)
+shared: $(SHARED_LIBRARY) $(CPP_SOURCES)
+	g++ $(CPPFLAGS) $(CPP_SOURCES) -L $(BUILD_DIR)/ -lilmp -o $(TARGET)
+install:
+	cp -i $(SHARED_LIBRARY) $(INSTALL_PATH)
+	ldconfig
+uninstall:
+	rm -i $(INSTALL_PATH)
+	ldconfig
 
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
@@ -24,7 +34,7 @@ $(BUILD_DIR):
 clean:
 	rm -rf $(BUILD_DIR)
 
-#=============  SHAREDLIB  =============
+#=============      C      =============
 
 C_SRCDIR := ilmp
 C_SOURCES := $(wildcard $(C_SRCDIR)/*.c)
@@ -32,6 +42,8 @@ C_OBJECTS := $(patsubst $(C_SRCDIR)/%.c,$(BUILD_DIR)/%.c.o,$(C_SOURCES))
 
 $(BUILD_DIR)/%.c.o: $(C_SRCDIR)/%.c
 	g++ -c -fPIC $(CFLAGS) $< -o $@
+	
+#=============     ASM     =============
 
 MASM_SRCDIR  := ilmp/masm
 MASM_SOURCES := $(wildcard $(MASM_SRCDIR)/*)
@@ -68,8 +80,13 @@ $(BUILD_DIR)/%.asm.o: $(BUILD_DIR)/%.asm $(NASM_SOURCES)
 	 sed -i 's/ifq/;/g' $(BUILD_DIR)/$$(cat $@);\
 	 fi
 	nasm -f elf64 -i $(BUILD_DIR) $(ASMFLAGS) $< -o $@
+	
+#=============  LIBRARIES  =============
 
 $(SHARED_LIBRARY): $(NASM_OBJECTS) $(C_OBJECTS)
 	ld -no-pie -static -e 0 -o $(ASM_LIBRARY) $(NASM_OBJECTS)
 	ld -static -shared -e 0 -o $(SHARED_LIBRARY) $(C_OBJECTS) $(ASM_LIBRARY)
 	strip $(SHARED_LIBRARY)
+
+$(STATIC_LIBRARY): $(NASM_OBJECTS) $(C_OBJECTS)
+	ld -r -static -e 0 -o $(STATIC_LIBRARY) $(NASM_OBJECTS) $(C_OBJECTS)
