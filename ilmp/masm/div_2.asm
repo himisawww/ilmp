@@ -27,7 +27,7 @@ win	mov rsi,rdx
 	mov r13,[rx3+8]
 lin	mov r10,rdi
 	mov rx0,r13
-	call ilmp_inv_1_
+	call ilmp_inv_1_ wrt ..plt
 lin	mov rdi,r10
 	mov r9,r13
 	mov r8,r12

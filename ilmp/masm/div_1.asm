@@ -24,7 +24,7 @@ win	mov rsi,rdx
 lin	mov r10,rdi
 	mov rbp,rx3
 	mov rx0,rx3
-	call ilmp_inv_1_
+	call ilmp_inv_1_ wrt ..plt
 lin	mov rdi,r10
 	mov r8,rbp
 	mov r9,rax

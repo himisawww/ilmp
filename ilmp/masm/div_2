@@ -46,7 +46,7 @@ lin	ifq	mov r10,rdi
 	push r8
 	push r9
 	mov rx0,r9
-	call ilmp_inv_1_
+	call ilmp_inv_1_ wrt ..plt
 lin	ifq	mov rdi,r10
 	pop r9
 	pop r8

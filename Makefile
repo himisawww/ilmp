@@ -84,8 +84,10 @@ $(BUILD_DIR)/%.asm.o: $(BUILD_DIR)/%.asm $(NASM_SOURCES)
 #=============  LIBRARIES  =============
 
 $(SHARED_LIBRARY): $(NASM_OBJECTS) $(C_OBJECTS)
-	ld -no-pie -static -e 0 -o $(ASM_LIBRARY) $(NASM_OBJECTS)
-	ld -static -shared -e 0 -o $(SHARED_LIBRARY) $(C_OBJECTS) $(ASM_LIBRARY)
+	# create a relocatable object from assembly units
+	ld -r -o $(ASM_LIBRARY) $(NASM_OBJECTS)
+	# link shared library from C objects and the relocatable asm object
+	ld -shared -e 0 -o $(SHARED_LIBRARY) $(C_OBJECTS) $(ASM_LIBRARY)
 	strip $(SHARED_LIBRARY)
 
 $(STATIC_LIBRARY): $(NASM_OBJECTS) $(C_OBJECTS)

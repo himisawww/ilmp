@@ -25,7 +25,7 @@ lin	ifq	mov r10,rdi
 	mov rbp,rcx
 	mov r12,r8
 	mov rx0,r8
-	call ilmp_inv_1_
+	call ilmp_inv_1_ wrt ..plt
 lin	ifq	mov rdi,r10
 	mov r9,rax
 	mov r8,r12
